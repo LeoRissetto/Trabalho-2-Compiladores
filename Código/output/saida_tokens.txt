@@ -9,7 +9,7 @@ n, n
 4, numero
 ;, simbolo_ponto_virgula
 f, f
-@, <ERRO_LEXICO: simbolo invalido>
+@, <ERRO_LEXICO>: caractere invalido>
 t, t
 :=, simbolo_atribuicao
 1, numero

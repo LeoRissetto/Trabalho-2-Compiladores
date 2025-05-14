@@ -168,7 +168,7 @@ Token obter_token()
                 ler_caractere();
             }
             numero[i] = '\0';
-            Token token = criar_token(TOKEN_ERRO, numero, "<ERRO_LEXICO: numero mal formado>");
+            Token token = criar_token(TOKEN_ERRO, numero, "<ERRO_LEXICO>: numero mal formado");
             free(numero);
             return token;
         }
@@ -190,7 +190,7 @@ Token obter_token()
         else
         {
             retroceder();
-            return criar_token(TOKEN_ERRO, ":", "<ERRO_LEXICO: caractere invalido>");
+            return criar_token(TOKEN_ERRO, ":", "<ERRO_LEXICO>: caractere invalido");
         }
     }
 
@@ -279,7 +279,7 @@ Token obter_token()
             }
             else
             {
-                return criar_token(TOKEN_ERRO, simbolo_str, "<ERRO_LEXICO: simbolo invalido>");
+                return criar_token(TOKEN_ERRO, simbolo_str, "<ERRO_LEXICO>: caractere invalido>");
             }
         }
     }
