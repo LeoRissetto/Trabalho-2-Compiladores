@@ -1,10 +1,14 @@
 #include "sintatico.h"
 
-// Global variable definitions
-Token lookahead;
-FILE *arquivo_saida_sintatico;
+// Variáveis globais
+Token lookahead;               // Token atual sendo analisado
+FILE *arquivo_saida_sintatico; // Arquivo de saída para a análise sintática
 
-// Helper function to get token type description
+/**
+ * Obtém a descrição em português de um tipo de token
+ * @param tipo Tipo do token
+ * @return String com a descrição do token
+ */
 const char *obter_descricao_token(TokenTipo tipo)
 {
     switch (tipo)
@@ -74,16 +78,28 @@ const char *obter_descricao_token(TokenTipo tipo)
     }
 }
 
+/**
+ * Avança para o próximo token
+ */
 void advance()
 {
     lookahead = obter_token();
 }
 
+/**
+ * Registra um erro sintático
+ * @param msg Mensagem de erro
+ */
 void erro(const char *msg)
 {
     fprintf(arquivo_saida_sintatico, "Erro sintático na linha %d: %s. Token atual: %s\n", lookahead.linha, msg, lookahead.lexema);
 }
 
+/**
+ * Verifica se o token atual corresponde ao esperado
+ * @param esperado Tipo do token esperado
+ * @return 1 se corresponde, 0 caso contrário
+ */
 int match(TokenTipo esperado)
 {
     if (lookahead.tipo == esperado)
@@ -102,6 +118,11 @@ int match(TokenTipo esperado)
     }
 }
 
+/**
+ * Sincroniza o analisador após um erro
+ * @param sincronizadores Array de tokens de sincronização
+ * @param tamanho Tamanho do array de sincronizadores
+ */
 void sincroniza(TokenTipo sincronizadores[], int tamanho)
 {
     int i;
@@ -124,6 +145,10 @@ void sincroniza(TokenTipo sincronizadores[], int tamanho)
     }
 }
 
+/**
+ * Analisa um programa completo
+ * programa ::= bloco '.'
+ */
 void programa()
 {
     TokenTipo sync[] = {TOKEN_EOF};
@@ -139,12 +164,20 @@ void programa()
     }
 }
 
+/**
+ * Analisa um bloco de código
+ * bloco ::= declaração comando
+ */
 void bloco()
 {
     declaracao();
     comando();
 }
 
+/**
+ * Analisa declarações
+ * declaração ::= constante variável procedimento
+ */
 void declaracao()
 {
     constante();
@@ -152,6 +185,10 @@ void declaracao()
     procedimento();
 }
 
+/**
+ * Analisa declaração de constantes
+ * constante ::= 'CONST' identificador '=' número {',' identificador '=' número} ';'
+ */
 void constante()
 {
     if (lookahead.tipo == TOKEN_CONST)
@@ -171,6 +208,10 @@ void constante()
     }
 }
 
+/**
+ * Analisa mais declarações de constantes
+ * mais_const ::= ',' identificador '=' número mais_const | ε
+ */
 void mais_const()
 {
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
@@ -189,6 +230,10 @@ void mais_const()
     }
 }
 
+/**
+ * Analisa declaração de variáveis
+ * variável ::= 'VAR' identificador {',' identificador} ';'
+ */
 void variavel()
 {
     if (lookahead.tipo == TOKEN_VAR)
@@ -202,6 +247,10 @@ void variavel()
     }
 }
 
+/**
+ * Analisa mais declarações de variáveis
+ * mais_var ::= ',' identificador mais_var | ε
+ */
 void mais_var()
 {
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
@@ -214,6 +263,10 @@ void mais_var()
     }
 }
 
+/**
+ * Analisa declaração de procedimentos
+ * procedimento ::= {'PROCEDURE' identificador ';' bloco ';'}
+ */
 void procedimento()
 {
     while (lookahead.tipo == TOKEN_PROCEDURE)
@@ -230,6 +283,14 @@ void procedimento()
     }
 }
 
+/**
+ * Analisa comandos
+ * comando ::= identificador ':=' expressão |
+ *            'CALL' identificador |
+ *            'BEGIN' comando {';' comando} 'END' |
+ *            'IF' condição 'THEN' comando |
+ *            'WHILE' condição 'DO' comando
+ */
 void comando()
 {
     TokenTipo sync[] = {TOKEN_SIMBOLO_PONTO_VIRGULA, TOKEN_END, TOKEN_EOF};
@@ -289,11 +350,14 @@ void comando()
         comando();
         break;
     default:
-        // lambda
         break;
     }
 }
 
+/**
+ * Analisa mais comandos
+ * mais_cmd ::= ';' comando mais_cmd | ε
+ */
 void mais_cmd()
 {
     if (lookahead.tipo == TOKEN_SIMBOLO_PONTO_VIRGULA)
@@ -304,6 +368,10 @@ void mais_cmd()
     }
 }
 
+/**
+ * Analisa expressões
+ * expressão ::= ['+'|'-'] termo {('+'|'-') termo}
+ */
 void expressao()
 {
     operador_unario();
@@ -311,6 +379,10 @@ void expressao()
     mais_termos();
 }
 
+/**
+ * Analisa operador unário
+ * operador_unario ::= '+' | '-' | ε
+ */
 void operador_unario()
 {
     if (lookahead.tipo == TOKEN_SIMBOLO_MAIS || lookahead.tipo == TOKEN_SIMBOLO_MENOS)
@@ -319,12 +391,20 @@ void operador_unario()
     }
 }
 
+/**
+ * Analisa termos
+ * termo ::= fator {('*'|'/') fator}
+ */
 void termo()
 {
     fator();
     mais_fatores();
 }
 
+/**
+ * Analisa mais termos
+ * mais_termos ::= ('+'|'-') termo mais_termos | ε
+ */
 void mais_termos()
 {
     while (lookahead.tipo == TOKEN_SIMBOLO_MAIS || lookahead.tipo == TOKEN_SIMBOLO_MENOS)
@@ -334,6 +414,10 @@ void mais_termos()
     }
 }
 
+/**
+ * Analisa fatores
+ * fator ::= identificador | número | '(' expressão ')'
+ */
 void fator()
 {
     switch (lookahead.tipo)
@@ -353,6 +437,10 @@ void fator()
     }
 }
 
+/**
+ * Analisa mais fatores
+ * mais_fatores ::= ('*'|'/') fator mais_fatores | ε
+ */
 void mais_fatores()
 {
     while (lookahead.tipo == TOKEN_SIMBOLO_VEZES || lookahead.tipo == TOKEN_SIMBOLO_DIVISAO)
@@ -362,6 +450,10 @@ void mais_fatores()
     }
 }
 
+/**
+ * Analisa condições
+ * condição ::= 'ODD' expressão | expressão relacional expressão
+ */
 void condicao()
 {
     if (lookahead.tipo == TOKEN_ODD)
@@ -377,6 +469,10 @@ void condicao()
     }
 }
 
+/**
+ * Analisa operadores relacionais
+ * relacional ::= '=' | '<>' | '<' | '<=' | '>' | '>='
+ */
 void relacional()
 {
     switch (lookahead.tipo)
@@ -395,10 +491,14 @@ void relacional()
     }
 }
 
+/**
+ * Inicia a análise sintática
+ */
 void analise_sintatica()
 {
-    advance(); // Inicializa lookahead
+    advance();
     programa();
+
     if (lookahead.tipo != TOKEN_EOF)
     {
         erro("Token extra após fim do programa");

@@ -1,40 +1,44 @@
 #ifndef SINTATICO_H
 #define SINTATICO_H
 
+// Inclusão dos arquivos de cabeçalho necessários
 #include "lexico.h"
 #include <stdio.h>
 
-// Global variables
-extern Token lookahead;
-extern FILE *arquivo_saida_sintatico;
+// Variáveis globais externas
+extern Token lookahead;               // Token atual sendo analisado
+extern FILE *arquivo_saida_sintatico; // Arquivo de saída para a análise sintática
 
-// Helper function declarations
+// Função auxiliar para obter a descrição de um tipo de token
 const char *obter_descricao_token(TokenTipo tipo);
 
-void advance();
-void erro(const char *msg);
-int match(TokenTipo esperado);
-void sincroniza(TokenTipo sincronizadores[], int tamanho);
+// Funções de controle do analisador sintático
+void advance();                                            // Avança para o próximo token
+void erro(const char *msg);                                // Trata erros sintáticos
+int match(TokenTipo esperado);                             // Verifica se o token atual corresponde ao esperado
+void sincroniza(TokenTipo sincronizadores[], int tamanho); // Sincroniza após um erro
 
-void programa();
-void bloco();
-void declaracao();
-void constante();
-void mais_const();
-void variavel();
-void mais_var();
-void procedimento();
-void comando();
-void mais_cmd();
-void expressao();
-void operador_unario();
-void termo();
-void mais_termos();
-void fator();
-void mais_fatores();
-void condicao();
-void relacional();
+// Funções que implementam a gramática da linguagem
+void programa();        // Analisa um programa completo
+void bloco();           // Analisa um bloco de código
+void declaracao();      // Analisa declarações (const, var, procedure)
+void constante();       // Analisa declaração de constante
+void mais_const();      // Analisa mais declarações de constantes
+void variavel();        // Analisa declaração de variável
+void mais_var();        // Analisa mais declarações de variáveis
+void procedimento();    // Analisa declaração de procedimento
+void comando();         // Analisa um comando
+void mais_cmd();        // Analisa mais comandos
+void expressao();       // Analisa uma expressão
+void operador_unario(); // Analisa operador unário
+void termo();           // Analisa um termo
+void mais_termos();     // Analisa mais termos
+void fator();           // Analisa um fator
+void mais_fatores();    // Analisa mais fatores
+void condicao();        // Analisa uma condição
+void relacional();      // Analisa operadores relacionais
 
+// Função principal do analisador sintático
 void analise_sintatica();
 
-#endif // SINTATICO_H
+#endif
