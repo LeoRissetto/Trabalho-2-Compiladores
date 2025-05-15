@@ -8,6 +8,9 @@
 extern Token lookahead;
 extern FILE *arquivo_saida_sintatico;
 
+// Helper function declarations
+const char *obter_descricao_token(TokenTipo tipo);
+
 void advance();
 void erro(const char *msg);
 int match(TokenTipo esperado);
