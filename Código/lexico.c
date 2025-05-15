@@ -1,7 +1,4 @@
 #include "lexico.h"
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
 
 // Global variables definition
 char caractere_atual;

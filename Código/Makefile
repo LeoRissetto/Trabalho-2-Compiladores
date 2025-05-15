@@ -2,9 +2,9 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g
 LDFLAGS = 
 
-SRCS = main.c lexico.c
+SRCS = main.c lexico.c sintatico.c
 OBJS = $(SRCS:.c=.o)
-TARGET = lexico
+TARGET = compilador
 
 .PHONY: all clean run
 

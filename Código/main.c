@@ -1,4 +1,5 @@
 #include "lexico.h"
+#include "sintatico.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,28 +13,23 @@ int main()
         return 1;
     }
 
-    // Open output file
-    FILE *arquivo_saida = fopen("output/saida_tokens.txt", "w");
-    if (!arquivo_saida)
+    // Open syntax analysis output file
+    arquivo_saida_sintatico = fopen("output/saida_sintatico.txt", "w");
+    if (!arquivo_saida_sintatico)
     {
-        printf("Erro ao abrir o arquivo de saída.\n");
+        printf("Erro ao abrir o arquivo de saída sintática.\n");
         fclose(arquivo_fonte);
         return 1;
     }
 
-    // Process tokens
-    Token token;
-    do
-    {
-        token = obter_token();
-        fprintf(arquivo_saida, "%s, %s\n", token.lexema, token.valor);
-        liberar_token(&token);
-    } while (token.tipo != TOKEN_EOF);
+    // Perform syntax analysis
+    analise_sintatica();
 
+    // Close all files
     fclose(arquivo_fonte);
-    fclose(arquivo_saida);
+    fclose(arquivo_saida_sintatico);
 
-    printf("Análise léxica concluída! Tokens salvos em 'output/saida_tokens.txt'.\n");
+    printf("Análise sintática concluída! Resultados salvos em 'output/saida_sintatico.txt'.\n");
 
     return 0;
 }

@@ -6,7 +6,10 @@
 #include <string.h>
 #include <ctype.h>
 
+// Global variables for the lexical analyzer
 extern int num_line;
+extern char caractere_atual;
+extern FILE *arquivo_fonte;
 
 // Token types
 typedef enum
@@ -74,10 +77,6 @@ typedef struct
     int tipo;
     const char *nome;
 } SimboloInfo;
-
-// Global variables for the lexical analyzer
-extern char caractere_atual;
-extern FILE *arquivo_fonte;
 
 // Function declarations
 void ler_caractere();
