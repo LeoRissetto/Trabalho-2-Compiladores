@@ -1,2 +1,2 @@
-Erro léxico na linha 1: caractere invalido
-Erro sintático na linha 5: Esperado operador relacional. Token atual: 1
+Erro sintático na linha 2: Esperado END. Token atual: 1
+Erro sintático na linha 3: Token extra após fim do programa. Token atual: END
