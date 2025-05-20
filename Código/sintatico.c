@@ -4,11 +4,7 @@
 Token lookahead;               // Token atual sendo analisado
 FILE *arquivo_saida_sintatico; // Arquivo de saída para a análise sintática
 
-/**
- * Obtém a descrição em português de um tipo de token
- * @param tipo Tipo do token
- * @return String com a descrição do token
- */
+// Obtém a descrição em português de um tipo de token
 const char *obter_descricao_token(TokenTipo tipo)
 {
     switch (tipo)
@@ -78,28 +74,26 @@ const char *obter_descricao_token(TokenTipo tipo)
     }
 }
 
-/**
- * Avança para o próximo token
- */
+// Avança para o próximo token
 void advance()
 {
-    lookahead = obter_token();
+    do
+    {
+        lookahead = obter_token();
+        if (lookahead.tipo == TOKEN_ERRO)
+        {
+            fprintf(arquivo_saida_sintatico, "Erro léxico na linha %d: %s\n", lookahead.linha, lookahead.valor);
+        }
+    } while (lookahead.tipo == TOKEN_ERRO);
 }
 
-/**
- * Registra um erro sintático
- * @param msg Mensagem de erro
- */
+// Registra um erro sintático
 void erro(const char *msg)
 {
     fprintf(arquivo_saida_sintatico, "Erro sintático na linha %d: %s. Token atual: %s\n", lookahead.linha, msg, lookahead.lexema);
 }
 
-/**
- * Verifica se o token atual corresponde ao esperado
- * @param esperado Tipo do token esperado
- * @return 1 se corresponde, 0 caso contrário
- */
+// Verifica se o token atual corresponde ao esperado
 int match(TokenTipo esperado)
 {
     if (lookahead.tipo == esperado)
@@ -109,20 +103,11 @@ int match(TokenTipo esperado)
     }
     else
     {
-        char msg[100];
-        snprintf(msg, sizeof(msg), "Token inesperado. Esperado: %s, Encontrado: %s",
-                 obter_descricao_token(esperado),
-                 obter_descricao_token(lookahead.tipo));
-        erro(msg);
         return 0;
     }
 }
 
-/**
- * Sincroniza o analisador após um erro
- * @param sincronizadores Array de tokens de sincronização
- * @param tamanho Tamanho do array de sincronizadores
- */
+// Sincroniza o analisador após um erro
 void sincroniza(TokenTipo sincronizadores[], int tamanho)
 {
     int i;
@@ -145,39 +130,20 @@ void sincroniza(TokenTipo sincronizadores[], int tamanho)
     }
 }
 
-/**
- * Analisa um programa completo
- * programa ::= bloco '.'
- */
+// Analisa um programa completo
 void programa()
 {
-    TokenTipo sync[] = {TOKEN_EOF};
     bloco();
-    if (!match(TOKEN_SIMBOLO_PONTO))
-    {
-        erro("Esperado '.' no final do programa");
-        sincroniza(sync, 1);
-    }
-    if (lookahead.tipo != TOKEN_EOF)
-    {
-        erro("Token extra após fim do programa");
-    }
 }
 
-/**
- * Analisa um bloco de código
- * bloco ::= declaração comando
- */
+// Analisa um bloco de código
 void bloco()
 {
     declaracao();
     comando();
 }
 
-/**
- * Analisa declarações
- * declaração ::= constante variável procedimento
- */
+// Analisa declarações
 void declaracao()
 {
     constante();
@@ -185,15 +151,13 @@ void declaracao()
     procedimento();
 }
 
-/**
- * Analisa declaração de constantes
- * constante ::= 'CONST' identificador '=' número {',' identificador '=' número} ';'
- */
+// Analisa declaração de constantes
 void constante()
 {
     if (lookahead.tipo == TOKEN_CONST)
     {
         advance();
+
         if (match(TOKEN_IDENTIFICADOR))
         {
             if (match(TOKEN_SIMBOLO_IGUAL))
@@ -201,17 +165,29 @@ void constante()
                 if (match(TOKEN_NUMERO))
                 {
                     mais_const();
-                    match(TOKEN_SIMBOLO_PONTO_VIRGULA);
+                    if (!match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+                    {
+                        erro("Esperado ';' após declaração de constante");
+                    }
+                }
+                else
+                {
+                    erro("Esperado número após '=' na constante");
                 }
             }
+            else
+            {
+                erro("Esperado '=' após identificador da constante");
+            }
+        }
+        else
+        {
+            erro("Esperado identificador após 'CONST'");
         }
     }
 }
 
-/**
- * Analisa mais declarações de constantes
- * mais_const ::= ',' identificador '=' número mais_const | ε
- */
+// Analisa mais declarações de constantes
 void mais_const()
 {
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
@@ -225,32 +201,46 @@ void mais_const()
                 {
                     mais_const();
                 }
+                else
+                {
+                    erro("Esperado número após '=' na constante");
+                }
             }
+            else
+            {
+                erro("Esperado '=' após identificador da constante");
+            }
+        }
+        else
+        {
+            erro("Esperado identificador após 'CONST'");
         }
     }
 }
 
-/**
- * Analisa declaração de variáveis
- * variável ::= 'VAR' identificador {',' identificador} ';'
- */
+// Analisa declaração de variáveis
 void variavel()
 {
     if (lookahead.tipo == TOKEN_VAR)
     {
         advance();
+
         if (match(TOKEN_IDENTIFICADOR))
         {
             mais_var();
-            match(TOKEN_SIMBOLO_PONTO_VIRGULA);
+            if (!match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+            {
+                erro("Esperado ';' após declaração de variável");
+            }
+        }
+        else
+        {
+            erro("Esperado identificador após 'VAR'");
         }
     }
 }
 
-/**
- * Analisa mais declarações de variáveis
- * mais_var ::= ',' identificador mais_var | ε
- */
+// Analisa mais declarações de variáveis
 void mais_var()
 {
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
@@ -260,41 +250,49 @@ void mais_var()
         {
             mais_var();
         }
+        else
+        {
+            erro("Esperado identificador após 'VAR'");
+        }
     }
 }
 
-/**
- * Analisa declaração de procedimentos
- * procedimento ::= {'PROCEDURE' identificador ';' bloco ';'}
- */
+// Analisa declaração de procedimentos
 void procedimento()
 {
-    while (lookahead.tipo == TOKEN_PROCEDURE)
+    if (lookahead.tipo == TOKEN_PROCEDURE)
     {
         advance();
+
         if (match(TOKEN_IDENTIFICADOR))
         {
             if (match(TOKEN_SIMBOLO_PONTO_VIRGULA))
             {
                 bloco();
-                match(TOKEN_SIMBOLO_PONTO_VIRGULA);
+                if (match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+                {
+                    procedimento();
+                }
+                else
+                {
+                    erro("Esperado ';' após bloco do procedimento");
+                }
             }
+            else
+            {
+                erro("Esperado ';' após identificador de procedimento");
+            }
+        }
+        else
+        {
+            erro("Esperado identificador após 'PROCEDURE'");
         }
     }
 }
 
-/**
- * Analisa comandos
- * comando ::= identificador ':=' expressão |
- *            'CALL' identificador |
- *            'BEGIN' comando {';' comando} 'END' |
- *            'IF' condição 'THEN' comando |
- *            'WHILE' condição 'DO' comando
- */
+// Analisa comandos
 void comando()
 {
-    TokenTipo sync[] = {TOKEN_SIMBOLO_PONTO_VIRGULA, TOKEN_END, TOKEN_EOF};
-
     switch (lookahead.tipo)
     {
     case TOKEN_IDENTIFICADOR:
@@ -302,20 +300,20 @@ void comando()
         if (!match(TOKEN_SIMBOLO_ATRIBUICAO))
         {
             erro("Esperado ':=' após identificador");
-            sincroniza(sync, 3);
             return;
         }
         expressao();
         break;
+
     case TOKEN_CALL:
         advance();
         if (!match(TOKEN_IDENTIFICADOR))
         {
             erro("Esperado identificador após CALL");
-            sincroniza(sync, 3);
             return;
         }
         break;
+
     case TOKEN_BEGIN:
         advance();
         comando();
@@ -323,55 +321,49 @@ void comando()
         if (!match(TOKEN_END))
         {
             erro("Esperado END");
-            sincroniza(sync, 3);
             return;
         }
         break;
+
     case TOKEN_IF:
         advance();
         condicao();
         if (!match(TOKEN_THEN))
         {
             erro("Esperado THEN");
-            sincroniza(sync, 3);
             return;
         }
         comando();
         break;
+
     case TOKEN_WHILE:
         advance();
         condicao();
         if (!match(TOKEN_DO))
         {
             erro("Esperado DO");
-            sincroniza(sync, 3);
             return;
         }
         comando();
         break;
+
     default:
+        // Nenhum comando válido encontrado — pode ser ε (vazio)
         break;
     }
 }
 
-/**
- * Analisa mais comandos
- * mais_cmd ::= ';' comando mais_cmd | ε
- */
+// Analisa mais comandos
 void mais_cmd()
 {
-    if (lookahead.tipo == TOKEN_SIMBOLO_PONTO_VIRGULA)
+    if (match(TOKEN_SIMBOLO_PONTO_VIRGULA))
     {
-        advance();
         comando();
         mais_cmd();
     }
 }
 
-/**
- * Analisa expressões
- * expressão ::= ['+'|'-'] termo {('+'|'-') termo}
- */
+// Analisa expressões
 void expressao()
 {
     operador_unario();
@@ -379,10 +371,7 @@ void expressao()
     mais_termos();
 }
 
-/**
- * Analisa operador unário
- * operador_unario ::= '+' | '-' | ε
- */
+// Analisa operador unário
 void operador_unario()
 {
     if (lookahead.tipo == TOKEN_SIMBOLO_MAIS || lookahead.tipo == TOKEN_SIMBOLO_MENOS)
@@ -391,33 +380,25 @@ void operador_unario()
     }
 }
 
-/**
- * Analisa termos
- * termo ::= fator {('*'|'/') fator}
- */
+// Analisa termos
 void termo()
 {
     fator();
     mais_fatores();
 }
 
-/**
- * Analisa mais termos
- * mais_termos ::= ('+'|'-') termo mais_termos | ε
- */
+// Analisa mais termos
 void mais_termos()
 {
-    while (lookahead.tipo == TOKEN_SIMBOLO_MAIS || lookahead.tipo == TOKEN_SIMBOLO_MENOS)
+    if (lookahead.tipo == TOKEN_SIMBOLO_MAIS || lookahead.tipo == TOKEN_SIMBOLO_MENOS)
     {
         advance();
         termo();
+        mais_termos();
     }
 }
 
-/**
- * Analisa fatores
- * fator ::= identificador | número | '(' expressão ')'
- */
+// Analisa fatores
 void fator()
 {
     switch (lookahead.tipo)
@@ -429,7 +410,10 @@ void fator()
     case TOKEN_SIMBOLO_ABRE_PARENTESIS:
         advance();
         expressao();
-        match(TOKEN_SIMBOLO_FECHA_PARENTESIS);
+        if (!match(TOKEN_SIMBOLO_FECHA_PARENTESIS))
+        {
+            erro("Esperado ')' após expressão");
+        }
         break;
     default:
         erro("Esperado fator (ident, num ou '(')");
@@ -437,23 +421,18 @@ void fator()
     }
 }
 
-/**
- * Analisa mais fatores
- * mais_fatores ::= ('*'|'/') fator mais_fatores | ε
- */
+// Analisa mais fatores
 void mais_fatores()
 {
-    while (lookahead.tipo == TOKEN_SIMBOLO_VEZES || lookahead.tipo == TOKEN_SIMBOLO_DIVISAO)
+    if (lookahead.tipo == TOKEN_SIMBOLO_VEZES || lookahead.tipo == TOKEN_SIMBOLO_DIVISAO)
     {
         advance();
         fator();
+        mais_fatores();
     }
 }
 
-/**
- * Analisa condições
- * condição ::= 'ODD' expressão | expressão relacional expressão
- */
+// Analisa condições
 void condicao()
 {
     if (lookahead.tipo == TOKEN_ODD)
@@ -469,10 +448,7 @@ void condicao()
     }
 }
 
-/**
- * Analisa operadores relacionais
- * relacional ::= '=' | '<>' | '<' | '<=' | '>' | '>='
- */
+// Analisa operadores relacionais
 void relacional()
 {
     switch (lookahead.tipo)
@@ -491,14 +467,13 @@ void relacional()
     }
 }
 
-/**
- * Inicia a análise sintática
- */
+// Inicia a análise sintática
 void analise_sintatica()
 {
     advance();
     programa();
 
+    advance();
     if (lookahead.tipo != TOKEN_EOF)
     {
         erro("Token extra após fim do programa");

@@ -1,5 +1,2 @@
+Erro léxico na linha 1: caractere invalido
 Erro sintático na linha 5: Esperado operador relacional. Token atual: 1
-Erro sintático na linha 8: Token inesperado. Esperado: END, Encontrado: número. Token atual: 1
-Erro sintático na linha 8: Esperado END. Token atual: 1
-Erro sintático na linha 10: Token inesperado. Esperado: ponto, Encontrado: END. Token atual: END
-Erro sintático na linha 10: Esperado '.' no final do programa. Token atual: END
