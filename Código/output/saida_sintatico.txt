@@ -1,2 +1,3 @@
 Erro sintático na linha 4: Esperado ':=' após identificador. Token atual: 1
-Erro sintático na linha 8: Operador esperado entre fatores na expressão. Token atual: 1
+Erro sintático na linha 8: Esperado END. Token atual: 1
+Erro sintático na linha 10: Esperado ';' após bloco do procedimento. Token atual: END

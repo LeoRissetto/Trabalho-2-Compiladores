@@ -12,4 +12,3 @@ BEGIN
 	n:=4;
 	CALL fatorial
 END.
-

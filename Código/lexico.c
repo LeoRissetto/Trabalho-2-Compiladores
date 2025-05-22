@@ -32,13 +32,11 @@ static const SimboloReservado simbolos[] = {
     {"/", "simbolo_divisao", TOKEN_SIMBOLO_DIVISAO},
     {"=", "simbolo_igual", TOKEN_SIMBOLO_IGUAL}};
 
-
 // Lê o próximo caractere do arquivo fonte
 void ler_caractere()
 {
     caractere_atual = fgetc(arquivo_fonte);
 }
-
 
 // Retrocede um caractere no arquivo fonte
 void retroceder()
@@ -83,7 +81,6 @@ int obter_palavra_reservada(const char *identificador, char **valor)
     return tipo;
 }
 
-
 // Obtém informações sobre um símbolo
 
 SimboloInfo obter_simbolo(char simbolo)
@@ -103,7 +100,6 @@ SimboloInfo obter_simbolo(char simbolo)
     }
     return info;
 }
-
 
 // Cria um novo token com as informações fornecidas
 static Token criar_token(TokenTipo tipo, const char *lexema, const char *valor)
@@ -289,7 +285,6 @@ Token obter_token()
     }
     }
 }
-
 
 // Libera a memória alocada para um token
 void liberar_token(Token *token)
