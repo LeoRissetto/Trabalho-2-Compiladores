@@ -1,2 +1,2 @@
-Erro sintático na linha 2: Esperado END. Token atual: 1
-Erro sintático na linha 3: Token extra após fim do programa. Token atual: END
+Erro sintático na linha 4: Esperado ':=' após identificador. Token atual: 1
+Erro sintático na linha 8: Operador esperado entre fatores na expressão. Token atual: 1

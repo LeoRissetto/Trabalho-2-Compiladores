@@ -32,17 +32,15 @@ static const SimboloReservado simbolos[] = {
     {"/", "simbolo_divisao", TOKEN_SIMBOLO_DIVISAO},
     {"=", "simbolo_igual", TOKEN_SIMBOLO_IGUAL}};
 
-/**
- * Lê o próximo caractere do arquivo fonte
- */
+
+// Lê o próximo caractere do arquivo fonte
 void ler_caractere()
 {
     caractere_atual = fgetc(arquivo_fonte);
 }
 
-/**
- * Retrocede um caractere no arquivo fonte
- */
+
+// Retrocede um caractere no arquivo fonte
 void retroceder()
 {
     if (caractere_atual != EOF)
@@ -51,11 +49,7 @@ void retroceder()
     }
 }
 
-/**
- * Converte uma string para maiúsculas
- * @param str String a ser convertida
- * @return Nova string em maiúsculas
- */
+// Converte uma string para maiúsculas
 char *converter_para_maiusculo(const char *str)
 {
     char *nova_str = malloc(strlen(str) + 1);
@@ -67,12 +61,7 @@ char *converter_para_maiusculo(const char *str)
     return nova_str;
 }
 
-/**
- * Verifica se um identificador é uma palavra reservada
- * @param identificador Identificador a ser verificado
- * @param valor Ponteiro para armazenar o valor do token
- * @return Tipo do token (TOKEN_IDENTIFICADOR ou tipo da palavra reservada)
- */
+// Verifica se um identificador é uma palavra reservada
 int obter_palavra_reservada(const char *identificador, char **valor)
 {
     char *identificador_maiusculo = converter_para_maiusculo(identificador);
@@ -94,11 +83,9 @@ int obter_palavra_reservada(const char *identificador, char **valor)
     return tipo;
 }
 
-/**
- * Obtém informações sobre um símbolo
- * @param simbolo Símbolo a ser analisado
- * @return Estrutura com informações do símbolo
- */
+
+// Obtém informações sobre um símbolo
+
 SimboloInfo obter_simbolo(char simbolo)
 {
     static char simbolo_str[2] = {0};
@@ -117,13 +104,8 @@ SimboloInfo obter_simbolo(char simbolo)
     return info;
 }
 
-/**
- * Cria um novo token com as informações fornecidas
- * @param tipo Tipo do token
- * @param lexema Lexema do token
- * @param valor Valor do token
- * @return Token criado
- */
+
+// Cria um novo token com as informações fornecidas
 static Token criar_token(TokenTipo tipo, const char *lexema, const char *valor)
 {
     Token token = {
@@ -308,10 +290,8 @@ Token obter_token()
     }
 }
 
-/**
- * Libera a memória alocada para um token
- * @param token Token a ser liberado
- */
+
+// Libera a memória alocada para um token
 void liberar_token(Token *token)
 {
     if (token != NULL)
