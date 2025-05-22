@@ -15,7 +15,6 @@ const char *obter_descricao_token(TokenTipo tipo);
 // Funções de controle do analisador sintático
 void advance();                                            // Avança para o próximo token
 void erro(const char *msg);                                // Trata erros sintáticos
-int match(TokenTipo esperado);                             // Verifica se o token atual corresponde ao esperado
 void sincroniza(TokenTipo sincronizadores[], int tamanho); // Sincroniza após um erro
 
 // Funções que implementam a gramática da linguagem

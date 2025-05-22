@@ -80,8 +80,8 @@ void advance()
     lookahead = obter_token();
     while (lookahead.tipo == TOKEN_ERRO)
     {
-        lookahead = obter_token();
         fprintf(arquivo_saida_sintatico, "Erro léxico na linha %d: %s\n", lookahead.linha, lookahead.lexema);
+        lookahead = obter_token();
     }
 }
 
@@ -89,20 +89,6 @@ void advance()
 void erro(const char *msg)
 {
     fprintf(arquivo_saida_sintatico, "Erro sintático na linha %d: %s. Token atual: %s\n", lookahead.linha, msg, lookahead.lexema);
-}
-
-// Verifica se o token atual corresponde ao esperado
-int match(TokenTipo esperado)
-{
-    if (lookahead.tipo == esperado)
-    {
-        advance();
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 // Sincroniza o analisador após um erro
@@ -169,17 +155,24 @@ void constante()
     {
         advance();
 
-        if (match(TOKEN_IDENTIFICADOR))
+        if (lookahead.tipo == TOKEN_IDENTIFICADOR)
         {
-            if (match(TOKEN_SIMBOLO_IGUAL))
+            advance();
+            if (lookahead.tipo == TOKEN_SIMBOLO_IGUAL)
             {
-                if (match(TOKEN_NUMERO))
+                advance();
+                if (lookahead.tipo == TOKEN_NUMERO)
                 {
+                    advance();
                     mais_const();
-                    if (!match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+                    if (lookahead.tipo != TOKEN_SIMBOLO_PONTO_VIRGULA)
                     {
                         erro("Esperado ';' após declaração de constante");
                         sincroniza(sincronizadores, 9);
+                    }
+                    else
+                    {
+                        advance();
                     }
                 }
                 else
@@ -208,12 +201,15 @@ void mais_const()
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
     {
         advance();
-        if (match(TOKEN_IDENTIFICADOR))
+        if (lookahead.tipo == TOKEN_IDENTIFICADOR)
         {
-            if (match(TOKEN_SIMBOLO_IGUAL))
+            advance();
+            if (lookahead.tipo == TOKEN_SIMBOLO_IGUAL)
             {
-                if (match(TOKEN_NUMERO))
+                advance();
+                if (lookahead.tipo == TOKEN_NUMERO)
                 {
+                    advance();
                     mais_const();
                 }
                 else
@@ -250,13 +246,18 @@ void variavel()
     {
         advance();
 
-        if (match(TOKEN_IDENTIFICADOR))
+        if (lookahead.tipo == TOKEN_IDENTIFICADOR)
         {
+            advance();
             mais_var();
-            if (!match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+            if (lookahead.tipo != TOKEN_SIMBOLO_PONTO_VIRGULA)
             {
                 erro("Esperado ';' após declaração de variável");
                 sincroniza(sincronizadores, 8);
+            }
+            else
+            {
+                advance();
             }
         }
         else
@@ -273,8 +274,9 @@ void mais_var()
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
     {
         advance();
-        if (match(TOKEN_IDENTIFICADOR))
+        if (lookahead.tipo == TOKEN_IDENTIFICADOR)
         {
+            advance();
             mais_var();
         }
         else
@@ -300,13 +302,16 @@ void procedimento()
     {
         advance();
 
-        if (match(TOKEN_IDENTIFICADOR))
+        if (lookahead.tipo == TOKEN_IDENTIFICADOR)
         {
-            if (match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+            advance();
+            if (lookahead.tipo == TOKEN_SIMBOLO_PONTO_VIRGULA)
             {
+                advance();
                 bloco();
-                if (match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+                if (lookahead.tipo == TOKEN_SIMBOLO_PONTO_VIRGULA)
                 {
+                    advance();
                     procedimento();
                 }
                 else
@@ -342,58 +347,63 @@ void comando()
     {
     case TOKEN_IDENTIFICADOR:
         advance();
-        if (!match(TOKEN_SIMBOLO_ATRIBUICAO))
+        if (lookahead.tipo != TOKEN_SIMBOLO_ATRIBUICAO)
         {
             erro("Esperado ':=' após identificador");
             sincroniza(sincronizadores, 3);
             return;
         }
+        advance();
         expressao();
         break;
 
     case TOKEN_CALL:
         advance();
-        if (!match(TOKEN_IDENTIFICADOR))
+        if (lookahead.tipo != TOKEN_IDENTIFICADOR)
         {
             erro("Esperado identificador após CALL");
             sincroniza(sincronizadores, 3);
             return;
         }
+        advance();
         break;
 
     case TOKEN_BEGIN:
         advance();
         comando();
         mais_cmd();
-        if (!match(TOKEN_END))
+        if (lookahead.tipo != TOKEN_END)
         {
             erro("Esperado END");
             sincroniza(sincronizadores, 3);
             return;
         }
+        advance();
         break;
 
     case TOKEN_IF:
         advance();
         condicao();
-        if (!match(TOKEN_THEN))
+        if (lookahead.tipo != TOKEN_THEN)
         {
             erro("Esperado THEN");
             sincroniza(sincronizadores, 3);
             return;
         }
+        advance();
         comando();
         break;
 
     case TOKEN_WHILE:
         advance();
         condicao();
-        if (!match(TOKEN_DO))
+        if (lookahead.tipo != TOKEN_DO)
         {
             erro("Esperado DO");
             sincroniza(sincronizadores, 3);
             return;
         }
+        advance();
         comando();
         break;
 
@@ -406,8 +416,9 @@ void comando()
 // Analisa mais comandos
 void mais_cmd()
 {
-    if (match(TOKEN_SIMBOLO_PONTO_VIRGULA))
+    if (lookahead.tipo == TOKEN_SIMBOLO_PONTO_VIRGULA)
     {
+        advance();
         comando();
         mais_cmd();
     }
@@ -467,10 +478,14 @@ void fator()
     case TOKEN_SIMBOLO_ABRE_PARENTESIS:
         advance();
         expressao();
-        if (!match(TOKEN_SIMBOLO_FECHA_PARENTESIS))
+        if (lookahead.tipo != TOKEN_SIMBOLO_FECHA_PARENTESIS)
         {
             erro("Esperado ')' após expressão");
             sincroniza(sincronizadores, 5);
+        }
+        else
+        {
+            advance();
         }
         break;
     default:
