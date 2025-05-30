@@ -12,10 +12,8 @@ extern int num_line;         // Contador de linhas do arquivo fonte
 extern char caractere_atual; // Caractere atual sendo analisado
 extern FILE *arquivo_fonte;  // Ponteiro para o arquivo fonte
 
-/**
- * Enumeração que define todos os tipos possíveis de tokens
- * Inclui identificadores, números, palavras reservadas e símbolos
- */
+// Enumeração que define todos os tipos possíveis de tokens
+// Inclui identificadores, números, palavras reservadas e símbolos
 typedef enum
 {
     TOKEN_IDENTIFICADOR,            // Identificadores (nomes de variáveis, procedimentos)
@@ -51,10 +49,8 @@ typedef enum
     TOKEN_EOF                       // Fim do arquivo
 } TokenTipo;
 
-/**
- * Estrutura que representa um token
- * Contém o tipo do token, seu lexema, valor e linha onde foi encontrado
- */
+// Estrutura que representa um token
+// Contém o tipo do token, seu lexema, valor e linha onde foi encontrado
 typedef struct
 {
     TokenTipo tipo; // Tipo do token
@@ -63,20 +59,16 @@ typedef struct
     int linha;      // Número da linha onde o token foi encontrado
 } Token;
 
-/**
- * Estrutura para palavras reservadas
- * Mapeia o lexema da palavra reservada para seu tipo de token
- */
+// Estrutura para palavras reservadas
+// Mapeia o lexema da palavra reservada para seu tipo de token
 typedef struct
 {
     const char *lexema; // Palavra reservada
     TokenTipo tipo;     // Tipo do token correspondente
 } PalavraReservada;
 
-/**
- * Estrutura para símbolos reservados
- * Mapeia o símbolo para seu nome e tipo de token
- */
+// Estrutura para símbolos reservados
+// Mapeia o símbolo para seu nome e tipo de token
 typedef struct
 {
     const char *lexema;      // Símbolo
@@ -84,10 +76,8 @@ typedef struct
     TokenTipo tipo;          // Tipo do token correspondente
 } SimboloReservado;
 
-/**
- * Estrutura para informações de símbolos
- * Contém o tipo e nome do símbolo
- */
+// Estrutura para informações de símbolos
+// Contém o tipo e nome do símbolo
 typedef struct
 {
     int tipo;         // Tipo do símbolo

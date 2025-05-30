@@ -82,7 +82,6 @@ int obter_palavra_reservada(const char *identificador, char **valor)
 }
 
 // Obtém informações sobre um símbolo
-
 SimboloInfo obter_simbolo(char simbolo)
 {
     static char simbolo_str[2] = {0};
@@ -112,10 +111,8 @@ static Token criar_token(TokenTipo tipo, const char *lexema, const char *valor)
     return token;
 }
 
-/**
- * Obtém o próximo token do arquivo fonte
- * @return Token encontrado
- */
+// Obtém o próximo token do arquivo fonte
+// returna o Token encontrado
 Token obter_token()
 {
     ler_caractere();
