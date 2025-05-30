@@ -54,6 +54,11 @@ class AnalisadorGUI:
                 saida = f.read()
         except Exception as e:
             saida = f'Erro ao ler saída: {e}'
+
+        # Se não houver erro, avisa o usuário
+        saida_strip = saida.strip()
+        if not saida_strip:
+            saida = 'Nenhum erro encontrado.'
         self.output_area.config(state='normal')
         self.output_area.delete('1.0', tk.END)
         self.output_area.insert(tk.END, saida)
@@ -79,7 +84,15 @@ class AnalisadorGUI:
         self.output_area.delete('1.0', tk.END)
         self.output_area.config(state='disabled')
 
+def on_close(root):
+    try:
+        subprocess.run(['make', 'clean'], cwd=CODIGO_DIR)
+    except Exception:
+        pass
+    root.destroy()
+
 if __name__ == '__main__':
     root = tk.Tk()
     app = AnalisadorGUI(root)
+    root.protocol("WM_DELETE_WINDOW", lambda: on_close(root))
     root.mainloop()
