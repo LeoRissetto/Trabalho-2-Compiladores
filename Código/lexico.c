@@ -3,10 +3,10 @@
 // Variáveis globais
 char caractere_atual; // Caractere atual sendo analisado
 FILE *arquivo_fonte;  // Ponteiro para o arquivo fonte
-int num_line = 1;     // Contador de linhas do arquivo fonte
+int numero_linha = 1; // Contador de linhas do arquivo fonte
 
 // Tabela de palavras reservadas da linguagem
-static const PalavraReservada palavras[] = {
+static const PalavraReservada tabela_palavras_reservadas[] = {
     {"CONST", TOKEN_CONST},
     {"VAR", TOKEN_VAR},
     {"PROCEDURE", TOKEN_PROCEDURE},
@@ -20,7 +20,7 @@ static const PalavraReservada palavras[] = {
     {"ODD", TOKEN_ODD}};
 
 // Tabela de símbolos reservados da linguagem
-static const SimboloReservado simbolos[] = {
+static const SimboloReservado tabela_simbolos_reservados[] = {
     {",", "simbolo_virgula", TOKEN_SIMBOLO_VIRGULA},
     {";", "simbolo_ponto_virgula", TOKEN_SIMBOLO_PONTO_VIRGULA},
     {".", "simbolo_ponto", TOKEN_SIMBOLO_PONTO},
@@ -33,13 +33,13 @@ static const SimboloReservado simbolos[] = {
     {"=", "simbolo_igual", TOKEN_SIMBOLO_IGUAL}};
 
 // Lê o próximo caractere do arquivo fonte
-void ler_caractere()
+void ler_caractere(void)
 {
     caractere_atual = fgetc(arquivo_fonte);
 }
 
 // Retrocede um caractere no arquivo fonte
-void retroceder()
+void retroceder(void)
 {
     if (caractere_atual != EOF)
     {
@@ -50,12 +50,15 @@ void retroceder()
 // Converte uma string para maiúsculas
 char *converter_para_maiusculo(const char *str)
 {
-    char *nova_str = malloc(strlen(str) + 1);
-    for (int i = 0; str[i]; i++)
+    size_t tamanho = strlen(str);
+    char *nova_str = malloc(tamanho + 1);
+    if (!nova_str)
+        return NULL;
+    for (size_t i = 0; i < tamanho; i++)
     {
-        nova_str[i] = toupper(str[i]);
+        nova_str[i] = toupper((unsigned char)str[i]);
     }
-    nova_str[strlen(str)] = '\0';
+    nova_str[tamanho] = '\0';
     return nova_str;
 }
 
@@ -63,20 +66,18 @@ char *converter_para_maiusculo(const char *str)
 int obter_palavra_reservada(const char *identificador, char **valor)
 {
     char *identificador_maiusculo = converter_para_maiusculo(identificador);
-
     int tipo = TOKEN_IDENTIFICADOR;
     *valor = strdup(identificador);
-
-    for (size_t i = 0; i < sizeof(palavras) / sizeof(palavras[0]); i++)
+    for (size_t i = 0; i < sizeof(tabela_palavras_reservadas) / sizeof(tabela_palavras_reservadas[0]); i++)
     {
-        if (strcmp(palavras[i].lexema, identificador_maiusculo) == 0)
+        if (strcmp(tabela_palavras_reservadas[i].lexema, identificador_maiusculo) == 0)
         {
-            tipo = palavras[i].tipo;
-            *valor = strdup(palavras[i].lexema);
+            tipo = tabela_palavras_reservadas[i].tipo;
+            free(*valor);
+            *valor = strdup(tabela_palavras_reservadas[i].lexema);
             break;
         }
     }
-
     free(identificador_maiusculo);
     return tipo;
 }
@@ -86,14 +87,13 @@ SimboloInfo obter_simbolo(char simbolo)
 {
     static char simbolo_str[2] = {0};
     simbolo_str[0] = simbolo;
-
     SimboloInfo info = {.tipo = -1, .nome = NULL};
-    for (size_t i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++)
+    for (size_t i = 0; i < sizeof(tabela_simbolos_reservados) / sizeof(tabela_simbolos_reservados[0]); i++)
     {
-        if (strcmp(simbolos[i].lexema, simbolo_str) == 0)
+        if (strcmp(tabela_simbolos_reservados[i].lexema, simbolo_str) == 0)
         {
-            info.tipo = simbolos[i].tipo;
-            info.nome = simbolos[i].nomeSimbolo;
+            info.tipo = tabela_simbolos_reservados[i].tipo;
+            info.nome = tabela_simbolos_reservados[i].nomeSimbolo;
             break;
         }
     }
@@ -107,78 +107,72 @@ static Token criar_token(TokenTipo tipo, const char *lexema, const char *valor)
         .tipo = tipo,
         .lexema = strdup(lexema),
         .valor = strdup(valor),
-        .linha = num_line};
+        .linha = numero_linha};
     return token;
 }
 
 // Obtém o próximo token do arquivo fonte
 // returna o Token encontrado
-Token obter_token()
+
+Token obter_token(void)
 {
     ler_caractere();
-
     switch (caractere_atual)
     {
-    // Reconhecimento de identificadores e palavras reservadas
+    // Identificadores e palavras reservadas
     case 'a' ... 'z':
     case 'A' ... 'Z':
     {
-        int i = 0;
-        char *identificador = malloc(sizeof(char));
+        int tamanho = 0;
+        char *identificador = NULL;
         while (isalnum(caractere_atual))
         {
-            identificador = realloc(identificador, (i + 1) * sizeof(char));
-            identificador[i++] = caractere_atual;
+            identificador = realloc(identificador, (tamanho + 2) * sizeof(char));
+            identificador[tamanho++] = caractere_atual;
             ler_caractere();
         }
-        identificador[i] = '\0';
+        identificador[tamanho] = '\0';
         retroceder();
-
-        char *valor;
+        char *valor = NULL;
         int tipo = obter_palavra_reservada(identificador, &valor);
         Token token = criar_token(tipo, identificador, valor);
-
         free(identificador);
         free(valor);
         return token;
     }
-
-    // Reconhecimento de números
+    // Números
     case '0' ... '9':
     {
-        int i = 0;
-        char *numero = malloc(sizeof(char));
-
+        int tamanho = 0;
+        char *numero = NULL;
         while (isdigit(caractere_atual))
         {
-            numero = realloc(numero, (i + 1) * sizeof(char));
-            numero[i++] = caractere_atual;
+            numero = realloc(numero, (tamanho + 2) * sizeof(char));
+            numero[tamanho++] = caractere_atual;
             ler_caractere();
         }
-        numero[i] = '\0';
-
+        numero[tamanho] = '\0';
         // Verifica se o número é mal formado (contém letras)
         if (isalpha(caractere_atual))
         {
             while (isalnum(caractere_atual))
             {
-                numero = realloc(numero, (i + 1) * sizeof(char));
-                numero[i++] = caractere_atual;
+                numero = realloc(numero, (tamanho + 2) * sizeof(char));
+                numero[tamanho++] = caractere_atual;
                 ler_caractere();
             }
-            numero[i] = '\0';
+            numero[tamanho] = '\0';
             Token token = criar_token(TOKEN_ERRO, numero, "numero mal formado");
             free(numero);
             return token;
         }
-
         retroceder();
         Token token = criar_token(TOKEN_NUMERO, numero, "numero");
         free(numero);
         return token;
     }
 
-    // Reconhecimento de atribuição (:=)
+    // Atribuição (:=)
     case ':':
     {
         ler_caractere();
@@ -193,7 +187,7 @@ Token obter_token()
         }
     }
 
-    // Reconhecimento de operadores relacionais (<, <=, <>)
+    // Operadores relacionais (<, <=, <>)
     case '<':
     {
         ler_caractere();
@@ -212,7 +206,7 @@ Token obter_token()
         }
     }
 
-    // Reconhecimento de operadores relacionais (>, >=)
+    // Operadores relacionais (>, >=)
     case '>':
     {
         ler_caractere();
@@ -227,24 +221,18 @@ Token obter_token()
         }
     }
 
-    // Ignora espaços em branco
+    // Espaços em branco
     case ' ':
     case '\t':
     case '\r':
     case '\v':
     case '\f':
-    {
         return obter_token();
-    }
-
-    // Incrementa contador de linhas
+    // Nova linha
     case '\n':
-    {
-        num_line++;
+        numero_linha++;
         return obter_token();
-    }
-
-    // Reconhecimento de comentários
+    // Comentários
     case '{':
     {
         while (caractere_atual != '}')
@@ -256,17 +244,12 @@ Token obter_token()
                 return criar_token(TOKEN_ERRO, "{", "comentario nao fechado");
             }
         }
-
         return obter_token();
     }
-
     // Fim do arquivo
     case EOF:
-    {
         return criar_token(TOKEN_EOF, "EOF", "fim_de_arquivo");
-    }
-
-    // Reconhecimento de outros símbolos
+    // Outros símbolos
     default:
     {
         SimboloInfo info = obter_simbolo(caractere_atual);
