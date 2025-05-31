@@ -1,10 +1,10 @@
 #include "sintatico.h"
 
 // Variáveis globais
-Token lookahead;               // Token atual sendo analisado
-FILE *arquivo_saida_sintatico; // Arquivo de saída para a análise sintática
+Token lookahead;               // Token atual analisado
+FILE *arquivo_saida_sintatico; // Arquivo de saída da análise sintática
 
-// Obtém a descrição em português de um tipo de token
+// Retorna a descrição textual de um tipo de token
 const char *obter_descricao_token(TokenTipo tipo)
 {
     switch (tipo)
@@ -74,8 +74,8 @@ const char *obter_descricao_token(TokenTipo tipo)
     }
 }
 
-// Avança para o próximo token
-void advance()
+// Avança para o próximo token válido
+void advance(void)
 {
     lookahead = obter_token();
     while (lookahead.tipo == TOKEN_ERRO)
@@ -94,12 +94,10 @@ void erro(const char *msg)
 // Sincroniza o analisador após um erro
 void sincroniza(TokenTipo sincronizadores[], int tamanho)
 {
-    int i;
     int encontrou = 0;
-
     while (!encontrou && lookahead.tipo != TOKEN_EOF)
     {
-        for (i = 0; i < tamanho; i++)
+        for (int i = 0; i < tamanho; i++)
         {
             if (lookahead.tipo == sincronizadores[i])
             {
@@ -107,11 +105,8 @@ void sincroniza(TokenTipo sincronizadores[], int tamanho)
                 break;
             }
         }
-
         if (!encontrou)
-        {
             advance();
-        }
     }
 }
 
@@ -597,7 +592,7 @@ void relacional()
 }
 
 // Inicia a análise sintática
-void analise_sintatica()
+void analise_sintatica(void)
 {
     advance();
     programa();

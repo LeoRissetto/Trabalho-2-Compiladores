@@ -1,45 +1,38 @@
-// Inclusão dos arquivos de cabeçalho necessários
+// main.c - Ponto de entrada do analisador
 #include "lexico.h"
 #include "sintatico.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-/**
- * Função principal do programa
- * Responsável por:
- * 1. Abrir o arquivo fonte de entrada
- * 2. Abrir o arquivo de saída para a análise sintática
- * 3. Executar a análise sintática
- * 4. Fechar os arquivos e exibir mensagem de conclusão
- */
-int main()
+// Função para abrir um arquivo e tratar erro
+static FILE *abrir_arquivo(const char *caminho, const char *modo, const char *erro_msg)
 {
-    // Abre o arquivo fonte de entrada no modo leitura
-    arquivo_fonte = fopen("input/codigo.pl0", "r");
-    if (!arquivo_fonte)
+    FILE *arquivo = fopen(caminho, modo);
+    if (!arquivo)
     {
-        printf("Erro ao abrir o arquivo fonte.\n");
-        return 1;
+        fprintf(stderr, "%s\n", erro_msg);
     }
+    return arquivo;
+}
 
-    // Abre o arquivo de saída para a análise sintática no modo escrita
-    arquivo_saida_sintatico = fopen("output/saida_sintatico.txt", "w");
+int main(void)
+{
+    arquivo_fonte = abrir_arquivo("input/codigo.pl0", "r", "Erro ao abrir o arquivo fonte.");
+    if (!arquivo_fonte)
+        return EXIT_FAILURE;
+
+    arquivo_saida_sintatico = abrir_arquivo("output/saida_sintatico.txt", "w", "Erro ao abrir o arquivo de saída sintática.");
     if (!arquivo_saida_sintatico)
     {
-        printf("Erro ao abrir o arquivo de saída sintática.\n");
         fclose(arquivo_fonte);
-        return 1;
+        return EXIT_FAILURE;
     }
 
-    // Executa a análise sintática do código fonte
     analise_sintatica();
 
-    // Fecha os arquivos abertos
     fclose(arquivo_fonte);
     fclose(arquivo_saida_sintatico);
 
-    // Exibe mensagem de conclusão com o local do arquivo de saída
     printf("Análise sintática concluída! Resultados salvos em 'output/saida_sintatico.txt'.\n");
-
-    return 0;
+    return EXIT_SUCCESS;
 }
