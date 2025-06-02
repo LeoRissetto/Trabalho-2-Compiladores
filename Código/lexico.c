@@ -162,7 +162,7 @@ Token obter_token(void)
                 ler_caractere();
             }
             numero[tamanho] = '\0';
-            Token token = criar_token(TOKEN_ERRO, numero, "numero mal formado");
+            Token token = criar_token(TOKEN_ERRO, numero, "Número Mal Formado");
             free(numero);
             return token;
         }
@@ -183,7 +183,7 @@ Token obter_token(void)
         else
         {
             retroceder();
-            return criar_token(TOKEN_ERRO, ":", "caractere invalido");
+            return criar_token(TOKEN_ERRO, ":", "Caractere Inválido");
         }
     }
 
@@ -241,7 +241,7 @@ Token obter_token(void)
             if (caractere_atual == EOF || caractere_atual == '\n')
             {
                 retroceder();
-                return criar_token(TOKEN_ERRO, "{", "comentario nao fechado");
+                return criar_token(TOKEN_ERRO, "{", "Comentário Não Fechado");
             }
         }
         return obter_token();
@@ -260,7 +260,7 @@ Token obter_token(void)
         else
         {
             char erro[2] = {caractere_atual, '\0'};
-            return criar_token(TOKEN_ERRO, erro, "caractere invalido");
+            return criar_token(TOKEN_ERRO, erro, "Caractere Inválido");
         }
     }
     }
