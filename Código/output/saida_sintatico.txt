@@ -1,2 +1,1 @@
 Erro sintático na linha 5: Esperado operador relacional (=, <>, <, <=, >, >=). Token atual: 1
-Erro sintático na linha 5: Esperado fator (ident, num ou '('). Token atual: DO

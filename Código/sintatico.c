@@ -74,33 +74,6 @@ const char *obter_descricao_token(TokenTipo tipo)
     }
 }
 
-// Sincronizadores para recuperação de erros
-TokenTipo sincronizadores_programa[] = {TOKEN_SIMBOLO_PONTO, TOKEN_EOF};
-
-TokenTipo sincronizadores_constante[] = {
-    TOKEN_VAR, TOKEN_PROCEDURE, TOKEN_BEGIN, TOKEN_IF, TOKEN_WHILE, TOKEN_SIMBOLO_PONTO, TOKEN_EOF};
-
-TokenTipo sincronizadores_mais_const[] = {
-    TOKEN_VAR, TOKEN_PROCEDURE, TOKEN_BEGIN, TOKEN_IF, TOKEN_WHILE, TOKEN_SIMBOLO_PONTO, TOKEN_EOF};
-
-TokenTipo sincronizadores_variavel[] = {
-    TOKEN_PROCEDURE, TOKEN_BEGIN, TOKEN_IF, TOKEN_WHILE, TOKEN_SIMBOLO_PONTO, TOKEN_EOF};
-
-TokenTipo sincronizadores_mais_var[] = {
-    TOKEN_PROCEDURE, TOKEN_BEGIN, TOKEN_IF, TOKEN_WHILE, TOKEN_SIMBOLO_PONTO, TOKEN_EOF};
-
-TokenTipo sincronizadores_procedimento[] = {
-    TOKEN_BEGIN, TOKEN_IF, TOKEN_WHILE, TOKEN_SIMBOLO_PONTO, TOKEN_EOF};
-
-TokenTipo sincronizadores_comando[] = {
-    TOKEN_SIMBOLO_PONTO_VIRGULA, TOKEN_END, TOKEN_SIMBOLO_PONTO, TOKEN_EOF};
-
-TokenTipo sincronizadores_fator[] = {
-    TOKEN_SIMBOLO_PONTO_VIRGULA, TOKEN_END, TOKEN_THEN, TOKEN_DO, TOKEN_EOF};
-
-TokenTipo sincronizadores_relacional[] = {
-    TOKEN_SIMBOLO_PONTO_VIRGULA, TOKEN_END, TOKEN_THEN, TOKEN_DO, TOKEN_EOF};
-
 // Avança para o próximo token válido
 void advance(void)
 {
@@ -140,11 +113,15 @@ void sincroniza(TokenTipo sincronizadores[], int tamanho)
 // Analisa um programa completo
 void programa()
 {
+    // Conjunto de sincronização para programa
+    TokenTipo sincronizadores[] = {
+        TOKEN_EOF};
+
     bloco();
     if (lookahead.tipo != TOKEN_SIMBOLO_PONTO)
     {
         erro("Esperado '.' ao final do programa");
-        sincroniza(sincronizadores_programa, sizeof(sincronizadores_programa) / sizeof(TokenTipo));
+        sincroniza(sincronizadores, 1);
     }
     else
     {
@@ -170,6 +147,18 @@ void declaracao()
 // Analisa declaração de constantes
 void constante()
 {
+    // Conjunto de sincronização para constante
+    TokenTipo sincronizadores[] = {
+        TOKEN_VAR,
+        TOKEN_PROCEDURE,
+        TOKEN_IDENTIFICADOR,
+        TOKEN_CALL,
+        TOKEN_BEGIN,
+        TOKEN_IF,
+        TOKEN_WHILE,
+        TOKEN_SIMBOLO_PONTO,
+        TOKEN_EOF};
+
     if (lookahead.tipo == TOKEN_CONST)
     {
         advance();
@@ -186,7 +175,7 @@ void constante()
                     if (lookahead.tipo != TOKEN_SIMBOLO_PONTO_VIRGULA)
                     {
                         erro("Esperado ';' após declaração de constante");
-                        sincroniza(sincronizadores_constante, sizeof(sincronizadores_constante) / sizeof(TokenTipo));
+                        sincroniza(sincronizadores, 9);
                     }
                     else
                     {
@@ -196,19 +185,19 @@ void constante()
                 else
                 {
                     erro("Esperado número após '=' na constante");
-                    sincroniza(sincronizadores_constante, sizeof(sincronizadores_constante) / sizeof(TokenTipo));
+                    sincroniza(sincronizadores, 9);
                 }
             }
             else
             {
                 erro("Esperado '=' após identificador da constante");
-                sincroniza(sincronizadores_constante, sizeof(sincronizadores_constante) / sizeof(TokenTipo));
+                sincroniza(sincronizadores, 9);
             }
         }
         else
         {
             erro("Esperado identificador após 'CONST'");
-            sincroniza(sincronizadores_constante, sizeof(sincronizadores_constante) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 9);
         }
     }
 }
@@ -216,6 +205,17 @@ void constante()
 // Analisa mais declarações de constantes
 void mais_const()
 {
+    TokenTipo sincronizadores[] = {
+        TOKEN_VAR,
+        TOKEN_PROCEDURE,
+        TOKEN_IDENTIFICADOR,
+        TOKEN_CALL,
+        TOKEN_BEGIN,
+        TOKEN_IF,
+        TOKEN_WHILE,
+        TOKEN_SIMBOLO_PONTO,
+        TOKEN_EOF};
+
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
     {
         advance();
@@ -233,19 +233,19 @@ void mais_const()
                 else
                 {
                     erro("Esperado número após '=' na constante");
-                    sincroniza(sincronizadores_mais_const, sizeof(sincronizadores_mais_const) / sizeof(TokenTipo));
+                    sincroniza(sincronizadores, 9);
                 }
             }
             else
             {
                 erro("Esperado '=' após identificador na declaração de constante");
-                sincroniza(sincronizadores_mais_const, sizeof(sincronizadores_mais_const) / sizeof(TokenTipo));
+                sincroniza(sincronizadores, 9);
             }
         }
         else
         {
             erro("Esperado identificador após ',' em declaração de constante");
-            sincroniza(sincronizadores_mais_const, sizeof(sincronizadores_mais_const) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 9);
         }
     }
 }
@@ -253,6 +253,16 @@ void mais_const()
 // Analisa declaração de variáveis
 void variavel()
 {
+    TokenTipo sincronizadores[] = {
+        TOKEN_PROCEDURE,
+        TOKEN_IDENTIFICADOR,
+        TOKEN_CALL,
+        TOKEN_BEGIN,
+        TOKEN_IF,
+        TOKEN_WHILE,
+        TOKEN_SIMBOLO_PONTO,
+        TOKEN_EOF};
+
     if (lookahead.tipo == TOKEN_VAR)
     {
         advance();
@@ -263,7 +273,7 @@ void variavel()
             if (lookahead.tipo != TOKEN_SIMBOLO_PONTO_VIRGULA)
             {
                 erro("Esperado ';' após declaração de variável");
-                sincroniza(sincronizadores_variavel, sizeof(sincronizadores_variavel) / sizeof(TokenTipo));
+                sincroniza(sincronizadores, 8);
             }
             else
             {
@@ -273,7 +283,7 @@ void variavel()
         else
         {
             erro("Esperado identificador após 'VAR'");
-            sincroniza(sincronizadores_variavel, sizeof(sincronizadores_variavel) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 8);
         }
     }
 }
@@ -281,6 +291,16 @@ void variavel()
 // Analisa mais declarações de variáveis
 void mais_var()
 {
+    TokenTipo sincronizadores[] = {
+        TOKEN_PROCEDURE,
+        TOKEN_IDENTIFICADOR,
+        TOKEN_CALL,
+        TOKEN_BEGIN,
+        TOKEN_IF,
+        TOKEN_WHILE,
+        TOKEN_SIMBOLO_PONTO,
+        TOKEN_EOF};
+
     if (lookahead.tipo == TOKEN_SIMBOLO_VIRGULA)
     {
         advance();
@@ -292,7 +312,7 @@ void mais_var()
         else
         {
             erro("Esperado identificador após ',' em declaração de variável");
-            sincroniza(sincronizadores_mais_var, sizeof(sincronizadores_mais_var) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 8);
         }
     }
 }
@@ -300,6 +320,15 @@ void mais_var()
 // Analisa declaração de procedimentos
 void procedimento()
 {
+    TokenTipo sincronizadores[] = {
+        TOKEN_IDENTIFICADOR,
+        TOKEN_CALL,
+        TOKEN_BEGIN,
+        TOKEN_IF,
+        TOKEN_WHILE,
+        TOKEN_SIMBOLO_PONTO,
+        TOKEN_EOF};
+
     if (lookahead.tipo == TOKEN_PROCEDURE)
     {
         advance();
@@ -318,19 +347,19 @@ void procedimento()
                 else
                 {
                     erro("Esperado ';' após bloco do procedimento");
-                    sincroniza(sincronizadores_procedimento, sizeof(sincronizadores_procedimento) / sizeof(TokenTipo));
+                    sincroniza(sincronizadores, 7);
                 }
             }
             else
             {
                 erro("Esperado ';' após identificador de procedimento");
-                sincroniza(sincronizadores_procedimento, sizeof(sincronizadores_procedimento) / sizeof(TokenTipo));
+                sincroniza(sincronizadores, 7);
             }
         }
         else
         {
             erro("Esperado identificador após 'PROCEDURE'");
-            sincroniza(sincronizadores_procedimento, sizeof(sincronizadores_procedimento) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 7);
         }
     }
 }
@@ -338,6 +367,12 @@ void procedimento()
 // Analisa comandos
 void comando()
 {
+    // Conjunto de sincronização para comando
+    TokenTipo sincronizadores[] = {
+        TOKEN_SIMBOLO_PONTO_VIRGULA,
+        TOKEN_END,
+        TOKEN_EOF};
+
     switch (lookahead.tipo)
     {
     case TOKEN_IDENTIFICADOR:
@@ -345,7 +380,7 @@ void comando()
         if (lookahead.tipo != TOKEN_SIMBOLO_ATRIBUICAO)
         {
             erro("Esperado ':=' após identificador");
-            sincroniza(sincronizadores_comando, sizeof(sincronizadores_comando) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 3);
         }
         else
         {
@@ -359,7 +394,7 @@ void comando()
         if (lookahead.tipo != TOKEN_IDENTIFICADOR)
         {
             erro("Esperado identificador após CALL");
-            sincroniza(sincronizadores_comando, sizeof(sincronizadores_comando) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 3);
         }
         else
         {
@@ -374,7 +409,7 @@ void comando()
         if (lookahead.tipo != TOKEN_END)
         {
             erro("Esperado END");
-            sincroniza(sincronizadores_comando, sizeof(sincronizadores_comando) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 3);
         }
         else
         {
@@ -388,7 +423,7 @@ void comando()
         if (lookahead.tipo != TOKEN_THEN)
         {
             erro("Esperado THEN");
-            sincroniza(sincronizadores_comando, sizeof(sincronizadores_comando) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 3);
         }
         else
         {
@@ -403,7 +438,7 @@ void comando()
         if (lookahead.tipo != TOKEN_DO)
         {
             erro("Esperado DO");
-            sincroniza(sincronizadores_comando, sizeof(sincronizadores_comando) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 3);
         }
         else
         {
@@ -466,6 +501,13 @@ void mais_termos()
 // Analisa fatores
 void fator()
 {
+    TokenTipo sincronizadores[] = {
+        TOKEN_SIMBOLO_PONTO_VIRGULA,
+        TOKEN_END,
+        TOKEN_THEN,
+        TOKEN_DO,
+        TOKEN_EOF};
+
     switch (lookahead.tipo)
     {
     case TOKEN_IDENTIFICADOR:
@@ -478,7 +520,7 @@ void fator()
         if (lookahead.tipo != TOKEN_SIMBOLO_FECHA_PARENTESIS)
         {
             erro("Esperado ')' após expressão");
-            sincroniza(sincronizadores_fator, sizeof(sincronizadores_fator) / sizeof(TokenTipo));
+            sincroniza(sincronizadores, 5);
         }
         else
         {
@@ -487,7 +529,7 @@ void fator()
         break;
     default:
         erro("Esperado fator (ident, num ou '(')");
-        sincroniza(sincronizadores_fator, sizeof(sincronizadores_fator) / sizeof(TokenTipo));
+        sincroniza(sincronizadores, 5);
         break;
     }
 }
@@ -522,6 +564,16 @@ void condicao()
 // Analisa operadores relacionais
 void relacional()
 {
+    TokenTipo sincronizadores[] = {
+        TOKEN_IDENTIFICADOR,
+        TOKEN_NUMERO,
+        TOKEN_SIMBOLO_ABRE_PARENTESIS,
+        TOKEN_SIMBOLO_PONTO_VIRGULA,
+        TOKEN_END,
+        TOKEN_THEN,
+        TOKEN_DO,
+        TOKEN_EOF};
+
     switch (lookahead.tipo)
     {
     case TOKEN_SIMBOLO_IGUAL:
@@ -534,7 +586,7 @@ void relacional()
         break;
     default:
         erro("Esperado operador relacional (=, <>, <, <=, >, >=)");
-        sincroniza(sincronizadores_relacional, sizeof(sincronizadores_relacional) / sizeof(TokenTipo));
+        sincroniza(sincronizadores, 8);
         break;
     }
 }
