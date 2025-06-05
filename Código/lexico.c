@@ -184,7 +184,7 @@ Token obter_token(void)
         else
         {
             retroceder();
-            return criar_token(TOKEN_ERRO, ":", "Caractere Inválido");
+            return criar_token(TOKEN_ERRO, ":", "Caractere Inválido. Você quis dizer ':=' ?");
         }
     }
 
@@ -261,6 +261,8 @@ Token obter_token(void)
         else
         {
             char erro[2] = {caractere_atual, '\0'};
+            if(caractere_atual == '}')
+                return criar_token(TOKEN_ERRO, erro, "Comentário não aberto");
             return criar_token(TOKEN_ERRO, erro, "Caractere Inválido");
         }
     }
