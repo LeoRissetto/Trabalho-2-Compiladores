@@ -162,6 +162,7 @@ Token obter_token(void)
                 ler_caractere();
             }
             numero[tamanho] = '\0';
+            retroceder();
             Token token = criar_token(TOKEN_ERRO, numero, "Número Mal Formado");
             free(numero);
             return token;

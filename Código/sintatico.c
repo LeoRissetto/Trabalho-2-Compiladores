@@ -80,7 +80,7 @@ void advance(void)
     lookahead = obter_token();
     while (lookahead.tipo == TOKEN_ERRO)
     {
-        fprintf(arquivo_saida_sintatico, "Erro léxico na linha %d: %s. Token atual: %s\n", lookahead.linha, lookahead.lexema, lookahead.valor);
+        fprintf(arquivo_saida_sintatico, "Erro léxico na linha %d: %s. Token atual: %s\n", lookahead.linha, lookahead.valor, lookahead.lexema);
         lookahead = obter_token();
     }
 }
