@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g
 LDFLAGS = 
 
-SRCS = main.c lexico.c sintatico.c
+SRCS = main.c lexico.c sintatico.c hash_table.c
 OBJS = $(SRCS:.c=.o)
 TARGET = compilador
 

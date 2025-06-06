@@ -87,4 +87,7 @@ SimboloInfo obter_simbolo(char simbolo);
 Token obter_token(void);
 void liberar_token(Token *token);
 
+// Inicialização das tabelas hash
+void inicializar_tabelas_hash();
+
 #endif

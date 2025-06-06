@@ -1,4 +1,5 @@
-// main.c - Ponto de entrada do analisador
+
+#include "hash_table.h"
 #include "lexico.h"
 #include "sintatico.h"
 #include <stdio.h>
@@ -17,6 +18,8 @@ static FILE *abrir_arquivo(const char *caminho, const char *modo, const char *er
 
 int main(void)
 {
+    inicializar_tabelas_hash();
+
     arquivo_fonte = abrir_arquivo("input/codigo.pl0", "r", "Erro ao abrir o arquivo fonte.");
     if (!arquivo_fonte)
         return EXIT_FAILURE;

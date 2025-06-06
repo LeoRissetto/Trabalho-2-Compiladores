@@ -1,36 +1,40 @@
+
 #include "lexico.h"
+#include "hash_table.h"
 
 // Variáveis globais
 char caractere_atual; // Caractere atual sendo analisado
 FILE *arquivo_fonte;  // Ponteiro para o arquivo fonte
 int numero_linha = 1; // Contador de linhas do arquivo fonte
 
-// Tabela de palavras reservadas da linguagem
-static const PalavraReservada tabela_palavras_reservadas[] = {
-    {"CONST", TOKEN_CONST},
-    {"VAR", TOKEN_VAR},
-    {"PROCEDURE", TOKEN_PROCEDURE},
-    {"CALL", TOKEN_CALL},
-    {"BEGIN", TOKEN_BEGIN},
-    {"END", TOKEN_END},
-    {"IF", TOKEN_IF},
-    {"THEN", TOKEN_THEN},
-    {"WHILE", TOKEN_WHILE},
-    {"DO", TOKEN_DO},
-    {"ODD", TOKEN_ODD}};
+// Inicialização das tabelas hash
+void inicializar_tabelas_hash()
+{
+    // Palavras reservadas
+    inserir_palavra_reservada("CONST", TOKEN_CONST);
+    inserir_palavra_reservada("VAR", TOKEN_VAR);
+    inserir_palavra_reservada("PROCEDURE", TOKEN_PROCEDURE);
+    inserir_palavra_reservada("CALL", TOKEN_CALL);
+    inserir_palavra_reservada("BEGIN", TOKEN_BEGIN);
+    inserir_palavra_reservada("END", TOKEN_END);
+    inserir_palavra_reservada("IF", TOKEN_IF);
+    inserir_palavra_reservada("THEN", TOKEN_THEN);
+    inserir_palavra_reservada("WHILE", TOKEN_WHILE);
+    inserir_palavra_reservada("DO", TOKEN_DO);
+    inserir_palavra_reservada("ODD", TOKEN_ODD);
 
-// Tabela de símbolos reservados da linguagem
-static const SimboloReservado tabela_simbolos_reservados[] = {
-    {",", "simbolo_virgula", TOKEN_SIMBOLO_VIRGULA},
-    {";", "simbolo_ponto_virgula", TOKEN_SIMBOLO_PONTO_VIRGULA},
-    {".", "simbolo_ponto", TOKEN_SIMBOLO_PONTO},
-    {"(", "simbolo_abre_parenteses", TOKEN_SIMBOLO_ABRE_PARENTESIS},
-    {")", "simbolo_fecha_parenteses", TOKEN_SIMBOLO_FECHA_PARENTESIS},
-    {"+", "simbolo_mais", TOKEN_SIMBOLO_MAIS},
-    {"-", "simbolo_menos", TOKEN_SIMBOLO_MENOS},
-    {"*", "simbolo_vezes", TOKEN_SIMBOLO_VEZES},
-    {"/", "simbolo_divisao", TOKEN_SIMBOLO_DIVISAO},
-    {"=", "simbolo_igual", TOKEN_SIMBOLO_IGUAL}};
+    // Símbolos reservados
+    inserir_simbolo_reservado(",", "simbolo_virgula", TOKEN_SIMBOLO_VIRGULA);
+    inserir_simbolo_reservado(";", "simbolo_ponto_virgula", TOKEN_SIMBOLO_PONTO_VIRGULA);
+    inserir_simbolo_reservado(".", "simbolo_ponto", TOKEN_SIMBOLO_PONTO);
+    inserir_simbolo_reservado("(", "simbolo_abre_parenteses", TOKEN_SIMBOLO_ABRE_PARENTESIS);
+    inserir_simbolo_reservado(")", "simbolo_fecha_parenteses", TOKEN_SIMBOLO_FECHA_PARENTESIS);
+    inserir_simbolo_reservado("+", "simbolo_mais", TOKEN_SIMBOLO_MAIS);
+    inserir_simbolo_reservado("-", "simbolo_menos", TOKEN_SIMBOLO_MENOS);
+    inserir_simbolo_reservado("*", "simbolo_vezes", TOKEN_SIMBOLO_VEZES);
+    inserir_simbolo_reservado("/", "simbolo_divisao", TOKEN_SIMBOLO_DIVISAO);
+    inserir_simbolo_reservado("=", "simbolo_igual", TOKEN_SIMBOLO_IGUAL);
+}
 
 // Lê o próximo caractere do arquivo fonte
 void ler_caractere(void)
@@ -67,16 +71,13 @@ int obter_palavra_reservada(const char *identificador, char **valor)
 {
     char *identificador_maiusculo = converter_para_maiusculo(identificador);
     int tipo = TOKEN_IDENTIFICADOR;
-    *valor = strdup(identificador);
-    for (size_t i = 0; i < sizeof(tabela_palavras_reservadas) / sizeof(tabela_palavras_reservadas[0]); i++)
+    if (buscar_palavra_reservada(identificador_maiusculo, &tipo))
     {
-        if (strcmp(tabela_palavras_reservadas[i].lexema, identificador_maiusculo) == 0)
-        {
-            tipo = tabela_palavras_reservadas[i].tipo;
-            free(*valor);
-            *valor = strdup(tabela_palavras_reservadas[i].lexema);
-            break;
-        }
+        *valor = strdup(identificador_maiusculo);
+    }
+    else
+    {
+        *valor = strdup(identificador);
     }
     free(identificador_maiusculo);
     return tipo;
@@ -88,14 +89,12 @@ SimboloInfo obter_simbolo(char simbolo)
     static char simbolo_str[2] = {0};
     simbolo_str[0] = simbolo;
     SimboloInfo info = {.tipo = -1, .nome = NULL};
-    for (size_t i = 0; i < sizeof(tabela_simbolos_reservados) / sizeof(tabela_simbolos_reservados[0]); i++)
+    int tipo;
+    const char *nomeSimbolo = NULL;
+    if (buscar_simbolo_reservado(simbolo_str, &tipo, &nomeSimbolo))
     {
-        if (strcmp(tabela_simbolos_reservados[i].lexema, simbolo_str) == 0)
-        {
-            info.tipo = tabela_simbolos_reservados[i].tipo;
-            info.nome = tabela_simbolos_reservados[i].nomeSimbolo;
-            break;
-        }
+        info.tipo = tipo;
+        info.nome = nomeSimbolo;
     }
     return info;
 }
@@ -261,7 +260,7 @@ Token obter_token(void)
         else
         {
             char erro[2] = {caractere_atual, '\0'};
-            if(caractere_atual == '}')
+            if (caractere_atual == '}')
                 return criar_token(TOKEN_ERRO, erro, "Comentário não aberto");
             return criar_token(TOKEN_ERRO, erro, "Caractere Inválido");
         }
