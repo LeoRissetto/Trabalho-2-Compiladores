@@ -1,6 +1,8 @@
 # Prerequisites
 *.d
 
+compilador
+
 # Object files
 *.o
 *.ko
