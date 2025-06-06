@@ -25,8 +25,17 @@ O analisador léxico identifica e classifica os elementos básicos do código-fo
 
 ---
 
+## 2. Correções realizadas a partir do Trabalho 1
 
-## 2. Decisões de Projeto
+- **Detecção de erro em comentários:**
+  - Corrigido o analisador léxico para detectar corretamente erros em comentários, conforme a especificação da linguagem PL/0, que permite apenas comentários de uma linha. Antes, o analisador permitia comentários em múltiplas linhas, o que não estava de acordo com a gramática. Agora, qualquer comentário não fechado corretamente na mesma linha é identificado como erro léxico.
+
+- **Detecção de números mal formados:**
+  - Corrigido um problema na detecção de números mal formados no analisador léxico, onde um caractere a mais era pulado após a identificação do erro. Agora, o analisador consome corretamente apenas os caracteres pertencentes ao número mal formado, garantindo precisão na análise e na mensagem de erro.
+  
+---
+
+## 3. Decisões de Projeto
 
 - **Léxico:**
   - O analisador léxico foi implementado em C, com foco em modularidade e eficiência.
@@ -59,7 +68,7 @@ O analisador léxico identifica e classifica os elementos básicos do código-fo
 ---
 
 
-## 3. Estratégias de Tratamento de Erros, Usabilidade e Limitações
+## 4. Estratégias de Tratamento de Erros, Usabilidade e Limitações
 
 - **Tratamento de erros léxicos e sintáticos:**
   - O modo pânico está implementado no parser, permitindo que a análise prossiga após erros e relatando todos os problemas encontrados.
@@ -83,7 +92,7 @@ O analisador léxico identifica e classifica os elementos básicos do código-fo
 
 ---
 
-## 4. Instruções para Compilar e Executar
+## 5. Instruções para Compilar e Executar
 
 ### Requisitos
 - Compilador C (testado com `gcc`)
@@ -120,7 +129,7 @@ make run
 
 ---
 
-## 5. Exemplo de Execução
+## 6. Exemplo de Execução
 
 ### **Exemplo sem erro:**
 ```pl0
@@ -156,7 +165,7 @@ Erro sintático na linha 5: Esperado operador relacional (=, <>, <, <=, >, >=). 
 ```
 
 ---
-## 6. Conclusão
+## 7. Conclusão
 
 O desenvolvimento deste projeto proporcionou uma compreensão prática dos conceitos de análise léxica e sintática, além de reforçar a importância da modularidade, tratamento de erros e clareza na comunicação com o usuário. A implementação do modo pânico e a integração com uma interface Python tornaram o sistema mais robusto e amigável, permitindo identificar múltiplos erros em uma única execução e facilitando o uso para estudantes e professores.
 
