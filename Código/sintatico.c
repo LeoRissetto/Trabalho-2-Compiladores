@@ -88,6 +88,11 @@ void advance(void)
             lookahead.tipo = TOKEN_NUMERO;
             break;
         }
+        else if (strcmp(lookahead.lexema, ":") == 0)
+        {
+            lookahead.tipo = TOKEN_SIMBOLO_ATRIBUICAO;
+            break;
+        }
 
         lookahead = obter_token();
     }
@@ -398,6 +403,11 @@ void comando()
         {
             advance();
             expressao();
+            if (lookahead.tipo == TOKEN_IDENTIFICADOR || lookahead.tipo == TOKEN_NUMERO || lookahead.tipo == TOKEN_SIMBOLO_ABRE_PARENTESIS)
+            {
+                erro("Esperado operador aritmético (+, -, * ou /)");
+                sincroniza(sincronizadores, 3);
+            }
         }
         break;
 
@@ -508,24 +518,6 @@ void mais_termos()
         termo();
         mais_termos();
     }
-    /*else if (lookahead.tipo == TOKEN_IDENTIFICADOR || lookahead.tipo == TOKEN_NUMERO || lookahead.tipo == TOKEN_SIMBOLO_ABRE_PARENTESIS)
-    {
-        advance();
-
-        erro("Esperado operador aritmético");
-
-        TokenTipo sincronizadores[] = {
-            TOKEN_IDENTIFICADOR,
-            TOKEN_NUMERO,
-            TOKEN_SIMBOLO_ABRE_PARENTESIS,
-            TOKEN_SIMBOLO_PONTO_VIRGULA,
-            TOKEN_END,
-            TOKEN_THEN,
-            TOKEN_DO,
-            TOKEN_EOF};
-
-        sincroniza(sincronizadores, 8);
-    }*/
 }
 
 // Analisa fatores
@@ -572,6 +564,19 @@ void mais_fatores()
         advance();
         fator();
         mais_fatores();
+    }
+    else if (lookahead.tipo == TOKEN_IDENTIFICADOR || lookahead.tipo == TOKEN_NUMERO || lookahead.tipo == TOKEN_SIMBOLO_ABRE_PARENTESIS)
+    {
+        erro("Esperado operador aritmético (+, -, * ou /)");
+        TokenTipo sincronizadores[] = {
+            TOKEN_SIMBOLO_MAIS, TOKEN_SIMBOLO_MENOS,
+            TOKEN_SIMBOLO_FECHA_PARENTESIS,
+            TOKEN_SIMBOLO_PONTO_VIRGULA,
+            TOKEN_END, TOKEN_THEN, TOKEN_DO, TOKEN_EOF,
+            TOKEN_SIMBOLO_IGUAL, TOKEN_SIMBOLO_DIFERENTE,
+            TOKEN_SIMBOLO_MENOR, TOKEN_SIMBOLO_MENOR_IGUAL,
+            TOKEN_SIMBOLO_MAIOR, TOKEN_SIMBOLO_MAIOR_IGUAL};
+        sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(TokenTipo));
     }
 }
 
