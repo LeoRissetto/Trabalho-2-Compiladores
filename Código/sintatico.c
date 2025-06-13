@@ -563,6 +563,7 @@ void mais_termos()
 void fator()
 {
     TokenTipo sincronizadores[] = {
+        TOKEN_SIMBOLO_FECHA_PARENTESIS,
         TOKEN_SIMBOLO_PONTO_VIRGULA,
         TOKEN_END,
         TOKEN_THEN,
