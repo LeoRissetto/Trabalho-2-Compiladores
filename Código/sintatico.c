@@ -81,6 +81,14 @@ void advance(void)
     while (lookahead.tipo == TOKEN_ERRO)
     {
         fprintf(arquivo_saida_sintatico, "Erro léxico na linha %d: %s. Token atual: %s\n", lookahead.linha, lookahead.valor, lookahead.lexema);
+
+        // Se for número mal formado, trata como TOKEN_NUMERO
+        if (lookahead.valor && strcmp(lookahead.valor, "Número Mal Formado") == 0)
+        {
+            lookahead.tipo = TOKEN_NUMERO;
+            break;
+        }
+
         lookahead = obter_token();
     }
 }
@@ -126,6 +134,10 @@ void programa()
     else
     {
         advance();
+        if (lookahead.tipo != TOKEN_EOF)
+        {
+            erro("Tokens após final do programa");
+        }
     }
 }
 
@@ -496,6 +508,24 @@ void mais_termos()
         termo();
         mais_termos();
     }
+    /*else if (lookahead.tipo == TOKEN_IDENTIFICADOR || lookahead.tipo == TOKEN_NUMERO || lookahead.tipo == TOKEN_SIMBOLO_ABRE_PARENTESIS)
+    {
+        advance();
+
+        erro("Esperado operador aritmético");
+
+        TokenTipo sincronizadores[] = {
+            TOKEN_IDENTIFICADOR,
+            TOKEN_NUMERO,
+            TOKEN_SIMBOLO_ABRE_PARENTESIS,
+            TOKEN_SIMBOLO_PONTO_VIRGULA,
+            TOKEN_END,
+            TOKEN_THEN,
+            TOKEN_DO,
+            TOKEN_EOF};
+
+        sincroniza(sincronizadores, 8);
+    }*/
 }
 
 // Analisa fatores
