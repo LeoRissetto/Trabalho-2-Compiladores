@@ -255,7 +255,8 @@ Token obter_token(void)
         SimboloInfo info = obter_simbolo(caractere_atual);
         if (info.tipo != -1)
         {
-            return criar_token(info.tipo, info.nome, info.nome);
+            char simbolo[2] = {caractere_atual, '\0'};
+            return criar_token(info.tipo, simbolo, info.nome);
         }
         else
         {

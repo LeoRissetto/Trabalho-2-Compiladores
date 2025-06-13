@@ -134,7 +134,7 @@ void programa()
     if (lookahead.tipo != TOKEN_SIMBOLO_PONTO)
     {
         erro("Esperado '.' ao final do programa");
-        sincroniza(sincronizadores, 1);
+        sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
     }
     else
     {
@@ -192,7 +192,7 @@ void constante()
                     if (lookahead.tipo != TOKEN_SIMBOLO_PONTO_VIRGULA)
                     {
                         erro("Esperado ';' após declaração de constante");
-                        sincroniza(sincronizadores, 9);
+                        sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
                     }
                     else
                     {
@@ -202,19 +202,19 @@ void constante()
                 else
                 {
                     erro("Esperado número após '=' na constante");
-                    sincroniza(sincronizadores, 9);
+                    sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
                 }
             }
             else
             {
                 erro("Esperado '=' após identificador da constante");
-                sincroniza(sincronizadores, 9);
+                sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
             }
         }
         else
         {
             erro("Esperado identificador após 'CONST'");
-            sincroniza(sincronizadores, 9);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
     }
 }
@@ -250,19 +250,43 @@ void mais_const()
                 else
                 {
                     erro("Esperado número após '=' na constante");
-                    sincroniza(sincronizadores, 9);
+                    sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
                 }
             }
             else
             {
                 erro("Esperado '=' após identificador na declaração de constante");
-                sincroniza(sincronizadores, 9);
+                sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
             }
         }
         else
         {
             erro("Esperado identificador após ',' em declaração de constante");
-            sincroniza(sincronizadores, 9);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
+        }
+    }
+    else if (lookahead.tipo == TOKEN_IDENTIFICADOR)
+    {
+        erro("Esperado ',' entre declaração de constantes");
+        advance();
+        if (lookahead.tipo == TOKEN_SIMBOLO_IGUAL)
+        {
+            advance();
+            if (lookahead.tipo == TOKEN_NUMERO)
+            {
+                advance();
+                mais_const();
+            }
+            else
+            {
+                erro("Esperado número após '=' na constante");
+                sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
+            }
+        }
+        else
+        {
+            erro("Esperado '=' após identificador na declaração de constante");
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
     }
 }
@@ -290,7 +314,7 @@ void variavel()
             if (lookahead.tipo != TOKEN_SIMBOLO_PONTO_VIRGULA)
             {
                 erro("Esperado ';' após declaração de variável");
-                sincroniza(sincronizadores, 8);
+                sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
             }
             else
             {
@@ -300,7 +324,7 @@ void variavel()
         else
         {
             erro("Esperado identificador após 'VAR'");
-            sincroniza(sincronizadores, 8);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
     }
 }
@@ -329,8 +353,14 @@ void mais_var()
         else
         {
             erro("Esperado identificador após ',' em declaração de variável");
-            sincroniza(sincronizadores, 8);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
+    }
+    else if (lookahead.tipo == TOKEN_IDENTIFICADOR)
+    {
+        erro("Esperado ',' apoós declaração de variável");
+        advance();
+        mais_var();
     }
 }
 
@@ -364,19 +394,19 @@ void procedimento()
                 else
                 {
                     erro("Esperado ';' após bloco do procedimento");
-                    sincroniza(sincronizadores, 7);
+                    sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
                 }
             }
             else
             {
                 erro("Esperado ';' após identificador de procedimento");
-                sincroniza(sincronizadores, 7);
+                sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
             }
         }
         else
         {
             erro("Esperado identificador após 'PROCEDURE'");
-            sincroniza(sincronizadores, 7);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
     }
 }
@@ -397,17 +427,12 @@ void comando()
         if (lookahead.tipo != TOKEN_SIMBOLO_ATRIBUICAO)
         {
             erro("Esperado ':=' após identificador");
-            sincroniza(sincronizadores, 3);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
         else
         {
             advance();
             expressao();
-            if (lookahead.tipo == TOKEN_IDENTIFICADOR || lookahead.tipo == TOKEN_NUMERO || lookahead.tipo == TOKEN_SIMBOLO_ABRE_PARENTESIS)
-            {
-                erro("Esperado operador aritmético (+, -, * ou /)");
-                sincroniza(sincronizadores, 3);
-            }
         }
         break;
 
@@ -416,7 +441,7 @@ void comando()
         if (lookahead.tipo != TOKEN_IDENTIFICADOR)
         {
             erro("Esperado identificador após CALL");
-            sincroniza(sincronizadores, 3);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
         else
         {
@@ -431,7 +456,7 @@ void comando()
         if (lookahead.tipo != TOKEN_END)
         {
             erro("Esperado END");
-            sincroniza(sincronizadores, 3);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
         else
         {
@@ -445,7 +470,7 @@ void comando()
         if (lookahead.tipo != TOKEN_THEN)
         {
             erro("Esperado THEN");
-            sincroniza(sincronizadores, 3);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
         else
         {
@@ -460,7 +485,7 @@ void comando()
         if (lookahead.tipo != TOKEN_DO)
         {
             erro("Esperado DO");
-            sincroniza(sincronizadores, 3);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
         else
         {
@@ -482,6 +507,20 @@ void mais_cmd()
         advance();
         comando();
         mais_cmd();
+    }
+    else if (lookahead.tipo != TOKEN_END && lookahead.tipo != TOKEN_EOF)
+    {
+        erro("Esperado ';' para separar comandos ou END para finalizar o bloco");
+        TokenTipo sincronizadores_mais_cmd[] = {
+            TOKEN_END,
+            TOKEN_SIMBOLO_PONTO_VIRGULA,
+            TOKEN_EOF};
+        sincroniza(sincronizadores_mais_cmd, sizeof(sincronizadores_mais_cmd) / sizeof(sincronizadores_mais_cmd[0]));
+
+        if (lookahead.tipo == TOKEN_SIMBOLO_PONTO_VIRGULA)
+        {
+            mais_cmd();
+        }
     }
 }
 
@@ -542,7 +581,7 @@ void fator()
         if (lookahead.tipo != TOKEN_SIMBOLO_FECHA_PARENTESIS)
         {
             erro("Esperado ')' após expressão");
-            sincroniza(sincronizadores, 5);
+            sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         }
         else
         {
@@ -551,7 +590,7 @@ void fator()
         break;
     default:
         erro("Esperado fator (ident, num ou '(')");
-        sincroniza(sincronizadores, 5);
+        sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         break;
     }
 }
@@ -568,15 +607,8 @@ void mais_fatores()
     else if (lookahead.tipo == TOKEN_IDENTIFICADOR || lookahead.tipo == TOKEN_NUMERO || lookahead.tipo == TOKEN_SIMBOLO_ABRE_PARENTESIS)
     {
         erro("Esperado operador aritmético (+, -, * ou /)");
-        TokenTipo sincronizadores[] = {
-            TOKEN_SIMBOLO_MAIS, TOKEN_SIMBOLO_MENOS,
-            TOKEN_SIMBOLO_FECHA_PARENTESIS,
-            TOKEN_SIMBOLO_PONTO_VIRGULA,
-            TOKEN_END, TOKEN_THEN, TOKEN_DO, TOKEN_EOF,
-            TOKEN_SIMBOLO_IGUAL, TOKEN_SIMBOLO_DIFERENTE,
-            TOKEN_SIMBOLO_MENOR, TOKEN_SIMBOLO_MENOR_IGUAL,
-            TOKEN_SIMBOLO_MAIOR, TOKEN_SIMBOLO_MAIOR_IGUAL};
-        sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(TokenTipo));
+        fator();
+        mais_fatores();
     }
 }
 
@@ -621,7 +653,7 @@ void relacional()
         break;
     default:
         erro("Esperado operador relacional (=, <>, <, <=, >, >=)");
-        sincroniza(sincronizadores, 8);
+        sincroniza(sincronizadores, sizeof(sincronizadores) / sizeof(sincronizadores[0]));
         break;
     }
 }
