@@ -1,4 +1,3 @@
-
 #include "hash_table.h"
 #include "lexico.h"
 #include "sintatico.h"

@@ -1,5 +1,3 @@
-
-
 # Relatório - Analisador Léxico e Sintático para PL/0
 
 ## Identificação
@@ -19,9 +17,7 @@
 
 ## 1. Introdução
 
-Este projeto tem como objetivo implementar um analisador léxico e sintático para a linguagem PL/0, integrando conceitos fundamentais de compiladores estudados na disciplina SCC0605. O sistema foi desenvolvido em C, com foco em modularidade, robustez e facilidade de uso, incluindo uma interface Python para interação amigável.
-
-O analisador léxico identifica e classifica os elementos básicos do código-fonte, enquanto o analisador sintático verifica a estrutura do programa conforme a gramática da linguagem, reportando todos os erros encontrados. O projeto enfatiza o tratamento eficiente de erros e a clareza das mensagens ao usuário, servindo como base sólida para etapas futuras do desenvolvimento de compiladores.
+Este projeto implementa um analisador léxico e sintático para a linguagem PL/0, integrando conceitos fundamentais de compiladores estudados na disciplina SCC0605. O sistema foi desenvolvido em C, com foco em modularidade, robustez e facilidade de uso. O analisador léxico identifica e classifica os elementos básicos do código-fonte, enquanto o analisador sintático verifica a estrutura do programa conforme a gramática da linguagem, reportando todos os erros encontrados. O projeto enfatiza o tratamento eficiente de erros e a clareza das mensagens ao usuário, servindo como base sólida para etapas futuras do desenvolvimento de compiladores.
 
 ---
 
@@ -32,29 +28,27 @@ O analisador léxico identifica e classifica os elementos básicos do código-fo
 
 - **Detecção de números mal formados:**
   - Corrigido um problema na detecção de números mal formados no analisador léxico, onde um caractere a mais era pulado após a identificação do erro. Agora, o analisador consome corretamente apenas os caracteres pertencentes ao número mal formado, garantindo precisão na análise e na mensagem de erro.
-  
+
 ---
 
 ## 3. Decisões de Projeto
 
 - **Léxico:**
-  - O analisador léxico foi implementado em C, com foco em modularidade e eficiência.
-  - Utiliza tabelas hash para reconhecimento rápido de palavras reservadas e símbolos, facilitando manutenção e extensibilidade.
-  - O léxico reconhece identificadores, números, palavras reservadas, operadores, símbolos e comentários, além de tratar erros como números mal formados, comentários não fechados e caracteres inválidos.
-  - O código é robusto quanto à alocação dinâmica de memória para lexemas e valores dos tokens, evitando vazamentos.
+  - Implementado em C, com foco em modularidade e eficiência.
+  - Utiliza tabelas hash para reconhecimento rápido de palavras reservadas e símbolos.
+  - Reconhece identificadores, números, palavras reservadas, operadores, símbolos e comentários, além de tratar erros como números mal formados, comentários não fechados e caracteres inválidos.
   - O tratamento de erros léxicos é imediato: ao encontrar um erro, o token de erro é emitido e a análise prossegue, permitindo a detecção de múltiplos problemas em uma única execução.
 
 - **Sintático:**
-  - O analisador sintático é do tipo descendente preditivo recursivo, com uma função C para cada não-terminal da gramática PL/0, seguindo a estrutura da gramática oficial.
+  - Implementado como um analisador descendente preditivo recursivo, com uma função para cada não-terminal da gramática PL/0.
   - O tratamento de erros sintáticos é feito pelo modo pânico, utilizando conjuntos de sincronização específicos para cada produção, permitindo recuperação e continuidade da análise após erros.
   - O parser cobre todas as construções da linguagem PL/0: declarações de constantes, variáveis, procedimentos, comandos compostos, comandos de atribuição, condicionais, laços, expressões aritméticas e relacionais, respeitando a precedência dos operadores.
-  - O parser está preparado para relatar múltiplos erros sintáticos em uma única execução, sem abortar na primeira falha.
+  - Relata múltiplos erros sintáticos em uma única execução, sem abortar na primeira falha.
 
-- **Integração e Interface:**
+- **Integração:**
   - O analisador sintático consome tokens do léxico de forma transparente, por meio da função `advance()`.
   - Todos os erros léxicos e sintáticos são reportados em um arquivo de saída, com informações detalhadas (linha, tipo de erro, token).
   - Ao final da análise, se não houver erros, uma mensagem de sucesso é registrada.
-  - O sistema pode ser executado via interface Python (`interface_tester.py`), que automatiza a execução e facilita o uso para o usuário.
 
 - **Modularidade e Organização:**
   - O código está dividido em módulos bem definidos:
@@ -66,7 +60,6 @@ O analisador léxico identifica e classifica os elementos básicos do código-fo
   - O projeto segue boas práticas de documentação interna e uso de comentários explicativos.
 
 ---
-
 
 ## 4. Estratégias de Tratamento de Erros, Usabilidade e Limitações
 
@@ -152,22 +145,23 @@ VAR n, fat;
 BEGIN
 	n:=4;	
 	fat:=1;
-	WHILE n 1 DO
+	WHILE n > 1 DO
 		BEGIN
-		fat:=fat*n;
+		fat:=fat n;
 		n:=n-1;
 		END
 END.
 ```
 ### **Saída:**
 ```
-Erro sintático na linha 5: Esperado operador relacional (=, <>, <, <=, >, >=). Token atual: 1
+Erro sintático na linha 7: Esperado operador aritmético (+, -, * ou /). Token atual: n
 ```
 
 ---
+
 ## 7. Conclusão
 
-O desenvolvimento deste projeto proporcionou uma compreensão prática dos conceitos de análise léxica e sintática, além de reforçar a importância da modularidade, tratamento de erros e clareza na comunicação com o usuário. A implementação do modo pânico e a integração com uma interface Python tornaram o sistema mais robusto e amigável, permitindo identificar múltiplos erros em uma única execução e facilitando o uso para estudantes e professores.
+O desenvolvimento deste projeto proporcionou uma compreensão prática dos conceitos de análise léxica e sintática, além de reforçar a importância da modularidade, tratamento de erros e clareza na comunicação com o usuário. A implementação do modo pânico tornou o sistema mais robusto, permitindo identificar múltiplos erros em uma única execução e facilitando o uso para estudantes e professores.
 
 Como grupo, destacamos o valor do trabalho colaborativo e da documentação clara, que foram essenciais para superar desafios técnicos e garantir a qualidade do código. Acreditamos que o projeto está bem estruturado para servir de base para etapas futuras do compilador, como análise semântica e geração de código.
 

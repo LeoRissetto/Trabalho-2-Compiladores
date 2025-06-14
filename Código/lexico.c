@@ -1,4 +1,3 @@
-
 #include "lexico.h"
 #include "hash_table.h"
 
